@@ -1,0 +1,3 @@
+FeatherCon is a lightweight servlet container built around embedded Jetty.
+
+More docs to follow...
