@@ -1,4 +1,4 @@
-package com.xoom.oss;
+package com.xoom.oss.feathercon;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;

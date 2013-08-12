@@ -7,7 +7,7 @@ FeatherCon(tainer) is a lightweight servlet container built around embedded Jett
 was designed was to host small production or tool servers for JAX-RS Jersey-based REST services.  Here's how to set
 one up, which is taken from one of the unit tests:
 
-    String scanPackages = "com.xoom.feathercon";
+    String scanPackages = "com.xoom.oss.feathercon";
     FeatherCon server = new JerseyServerBuilder(scanPackages).build();
     server.start();
 
@@ -59,6 +59,6 @@ with this dependency
             <dependency>
                 <groupId>com.xoom.oss</groupId>
                 <artifactId>feathercon</artifactId>
-                <version>1.0</version>  <!-- or latest in the repository above -->
+                <version>1.1</version>  <!-- or latest in the repository above -->
             </dependency>
         </dependencies>

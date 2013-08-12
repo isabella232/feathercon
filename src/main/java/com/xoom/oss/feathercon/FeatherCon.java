@@ -1,4 +1,4 @@
-package com.xoom.oss;
+package com.xoom.oss.feathercon;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;

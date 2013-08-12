@@ -1,4 +1,4 @@
-package com.xoom.oss;
+package com.xoom.oss.feathercon;
 
 public class User {
     public String name;
