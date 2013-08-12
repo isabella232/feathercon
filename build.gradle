@@ -83,6 +83,10 @@ dependencies {
     deployerJars 'org.apache.maven.wagon:wagon-http:2.4'
 }
 
+/*
+Read this!  The BinTray API key is so long that it induces some Base64 encoders to line-break the long HTTP Basic Auth header.
+So this uploadArchive task must be executed from a Java7 JRE.  Strange, but works.  msp 12Aug2013
+ */
 uploadArchives {
     repositories {
         mavenDeployer {
