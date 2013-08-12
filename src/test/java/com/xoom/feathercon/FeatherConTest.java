@@ -1,5 +1,10 @@
 package com.xoom.feathercon;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.json.JSONConfiguration;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -22,6 +27,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -67,6 +73,22 @@ public class FeatherConTest {
 
     @After
     public void tearDown() throws Exception {
+    }
+
+    @Test
+    public void testJerseyServer() throws Exception {
+        String scanPackages = "com.xoom.feathercon";
+        FeatherCon server = new JerseyServerBuilder(scanPackages).build();
+        server.start();
+
+        ClientConfig clientConfig = new DefaultClientConfig();
+        clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+        Client client = Client.create(clientConfig);
+        WebResource resource = client.resource("http://localhost:8080/users");
+        User user = resource.accept(MediaType.APPLICATION_JSON_TYPE).get(User.class);
+        System.out.println(user);
+
+        server.stop();
     }
 
     @Test

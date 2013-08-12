@@ -13,15 +13,12 @@ package com.xoom.feathercon;
  */
 public class JerseyServerBuilder extends FeatherCon.FeatherConBuilder {
     /**
-     * @param scanPackages       Semicolon-separated list of packages to scan for JAX-RS resources.
-     * @param POJOMappingFeature Set true to enable POJO to JSON serialization.
+     * @param scanPackages Semicolon-separated list of packages to scan for JAX-RS resources.
      */
-    public JerseyServerBuilder(String scanPackages, boolean POJOMappingFeature) {
+    public JerseyServerBuilder(String scanPackages) {
         withServletClassName("com.sun.jersey.spi.container.servlet.ServletContainer")
                 .withInitOrder(1)
-                .withInitParam("com.sun.jersey.config.property.packages", scanPackages);
-        if (POJOMappingFeature) {
-            withInitParam("com.sun.jersey.api.json.POJOMappingFeature", "true");
-        }
+                .withInitParam("com.sun.jersey.config.property.packages", scanPackages)
+                .withInitParam("com.sun.jersey.api.json.POJOMappingFeature", "true");
     }
 }
