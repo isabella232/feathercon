@@ -57,7 +57,7 @@ with this dependency
 
         <dependencies>
             <dependency>
-                <groupId>com.xoom</groupId>
+                <groupId>com.xoom.oss</groupId>
                 <artifactId>feathercon</artifactId>
                 <version>1.0</version>  <!-- or latest in the repository above -->
             </dependency>
