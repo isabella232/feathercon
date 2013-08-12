@@ -1,4 +1,4 @@
-package com.xoom.feathercon;
+package com.xoom.oss;
 
 /**
  * Jersey servlet builder.  To use this, these Jersey dependencies need to be on the classpath

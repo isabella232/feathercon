@@ -1,4 +1,4 @@
-package com.xoom.feathercon;
+package com.xoom.oss;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -77,7 +77,7 @@ public class FeatherConTest {
 
     @Test
     public void testJerseyServer() throws Exception {
-        String scanPackages = "com.xoom.feathercon";
+        String scanPackages = "com.xoom.oss";
         FeatherCon server = new JerseyServerBuilder(scanPackages).build();
         server.start();
 

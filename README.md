@@ -31,3 +31,34 @@ with the appropriate configs exercised through the various builder withXXX metho
 To build using the included Gradle Wrapper (http://www.gradle.org/docs/current/userguide/gradle_wrapper.html):
 
 $ ./gradlew clean build
+
+Installing to the local Maven repository proceeds thusly
+
+    ./gradlew --info clean install
+    ...
+    [INFO] Installing /Users/petrovic/Projects/feathercon/build/libs/feathercon-1.0.jar to /Users/petrovic/.m2/repository/com/xoom/feathercon/1.0/feathercon-1.0.jar
+
+### Maven coordinates
+
+The binary for this build can be used in a Maven build by specifying this repository in your POM
+
+        <repositories>
+            <repository>
+                <snapshots>
+                    <enabled>false</enabled>
+                </snapshots>
+                <id>bintray</id>
+                <name>bintray</name>
+                <url>http://dl.bintray.com/xoom/xoomoss</url>
+            </repository>
+        </repositories>
+
+with this dependency
+
+        <dependencies>
+            <dependency>
+                <groupId>com.xoom</groupId>
+                <artifactId>feathercon</artifactId>
+                <version>1.0</version>  <!-- or latest in the repository above -->
+            </dependency>
+        </dependencies>
