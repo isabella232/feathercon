@@ -1,7 +1,7 @@
 FeatherCon lightweight servlet container
 ----------------------------------------
 
-FeatherCon is a lightweight servlet container built around embedded Jetty.  The first use case for which FeatherCon
+FeatherCon(tainer) is a lightweight servlet container built around embedded Jetty.  The first use case for which FeatherCon
 was designed was to host small production or tool servers for JAX-RS Jersey-based REST services.  Here's how to set
 one up, which is taken from one of the unit tests:
 
