@@ -185,7 +185,7 @@ public class FeatherConTest {
         List<FeatherCon.FeatherConBuilder.FilterWrapper> filters = getField("filters", builder, FeatherCon.FeatherConBuilder.class, List.class);
         assertThat(1, equalTo(filters.size()));
         FeatherCon.FeatherConBuilder.FilterWrapper filterBuffer = filters.get(0);
-        assertEquals(AppFilter.class, (filterBuffer.filterClazz));
+        assertEquals(AppFilter.class, (filterBuffer.filterClass));
         assertThat("/foo", equalTo(filterBuffer.pathSpec));
         assertThat(dispatcherTypes, equalTo(filterBuffer.dispatches));
 

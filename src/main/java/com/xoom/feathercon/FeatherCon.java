@@ -71,8 +71,8 @@ public class FeatherCon {
             return this;
         }
 
-        public FeatherConBuilder withServletClassName(Class<? extends Servlet> servletClazz) {
-            this.servletClass = servletClazz;
+        public FeatherConBuilder withServletClassName(Class<? extends Servlet> servletClass) {
+            this.servletClass = servletClass;
             return this;
         }
 
@@ -120,8 +120,8 @@ public class FeatherCon {
             return this;
         }
 
-        public FeatherConBuilder withFilter(Class<? extends Filter> filterClazz, String pathSpec, EnumSet<DispatcherType> dispatches) {
-            filters.add(new FilterWrapper(filterClazz, pathSpec, dispatches));
+        public FeatherConBuilder withFilter(Class<? extends Filter> filterClass, String pathSpec, EnumSet<DispatcherType> dispatches) {
+            filters.add(new FilterWrapper(filterClass, pathSpec, dispatches));
             return this;
         }
 
@@ -161,7 +161,7 @@ public class FeatherCon {
                 container.addEventListener(eventListener);
             }
             for (FilterWrapper filterBuffer : filters) {
-                container.addFilter(filterBuffer.filterClazz, filterBuffer.pathSpec, filterBuffer.dispatches);
+                container.addFilter(filterBuffer.filterClass, filterBuffer.pathSpec, filterBuffer.dispatches);
             }
 
             FeatherCon featherCon = new FeatherCon(server, port, servletHolder, container);
@@ -181,12 +181,12 @@ public class FeatherCon {
         }
 
         class FilterWrapper {
-            public final Class<? extends Filter> filterClazz;
+            public final Class<? extends Filter> filterClass;
             public final String pathSpec;
             public final EnumSet<DispatcherType> dispatches;
 
-            public FilterWrapper(Class<? extends Filter> filterClazz, String pathSpec, EnumSet<DispatcherType> dispatches) {
-                this.filterClazz = filterClazz;
+            public FilterWrapper(Class<? extends Filter> filterClass, String pathSpec, EnumSet<DispatcherType> dispatches) {
+                this.filterClass = filterClass;
                 this.pathSpec = pathSpec;
                 this.dispatches = dispatches;
             }
