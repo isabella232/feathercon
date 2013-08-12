@@ -4,6 +4,19 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'maven'
 
+/*
+The format of the bintray.gradle file is
+
+ext.bintray =[
+   user: "theuser",
+   password: "thepassword"
+]
+
+This file must exist in the project top-level directory.
+
+ */
+apply from: file("${rootDir}/bintray.gradle")
+
 group = "com.xoom"
 version = "1.0"
 
@@ -58,4 +71,25 @@ tasks.withType(Compile) {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.7'
+}
+
+configurations {
+    deployerJars
+}
+
+dependencies {
+    deployerJars "org.apache.maven.wagon:wagon-http:1.0-beta-2"
+}
+
+uploadArchives {
+    def publishRepository = "https://api.bintray.com/maven/xoom/xoomoss/feathercon"
+    repositories {
+        mavenDeployer {
+            name = 'nexusDeployer'
+            configuration = configurations.deployerJars
+            repository(url: publishRepository) {
+                authentication(userName: bintray.user, password: bintray.password)
+            }
+        }
+    }
 }
