@@ -9,7 +9,7 @@ The format of the bintray.gradle file is
 
 ext.bintray =[
    user: "theuser",
-   password: "thepassword"
+   apikey: "thekey"
 ]
 
 This file must exist in the project top-level directory.
@@ -78,17 +78,16 @@ configurations {
 }
 
 dependencies {
-    deployerJars "org.apache.maven.wagon:wagon-http:1.0-beta-2"
+    deployerJars 'org.apache.maven.wagon:wagon-http:2.4'
 }
 
 uploadArchives {
-    def publishRepository = "https://api.bintray.com/maven/xoom/xoomoss/feathercon"
     repositories {
         mavenDeployer {
-            name = 'nexusDeployer'
+            name = 'xoom-xoomoss-feathercon'
             configuration = configurations.deployerJars
-            repository(url: publishRepository) {
-                authentication(userName: bintray.user, password: bintray.password)
+            repository(url: "https://api.bintray.com/maven/xoom/xoomoss/feathercon") {
+                authentication(userName: bintray.user, password: bintray.apikey)
             }
         }
     }
