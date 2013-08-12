@@ -1,13 +1,10 @@
 FeatherCon lightweight servlet container
-========================================
+----------------------------------------
 
 FeatherCon is a lightweight servlet container built around embedded Jetty.  The first use case for which FeatherCon
 was designed was to host small production or tool servers for JAX-RS Jersey-based REST services.  Here's how to set
 one up, which is taken from one of the unit tests:
 
-...
-@Test
-public void testJerseyServer() throws Exception {
     String scanPackages = "com.xoom.feathercon";
     FeatherCon server = new JerseyServerBuilder(scanPackages).build();
     server.start();
@@ -20,8 +17,9 @@ public void testJerseyServer() throws Exception {
     System.out.println(user);
 
     server.stop();
-}
-...
+
+We've also found FeatherCon to be useful in unit tests, where spinning up a fast backend on a per-test basis to test
+REST clients was needed.
 
 The FeatherCon builder com.xoom.feathercon.FeatherCon.FeatherConBuilder can be used to host an arbitrary servlet
 with the appropriate configs exercised through the various builder withXXX methods.
