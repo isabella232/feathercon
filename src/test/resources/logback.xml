@@ -7,6 +7,7 @@
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
     </root>
+    <logger name="com.sun.jersey" level="DEBUG"/>
     <logger name="com.xoom.feathercon" level="INFO"/>
     <logger name="org.eclipse.jetty" level="INFO"/>
 </configuration>
