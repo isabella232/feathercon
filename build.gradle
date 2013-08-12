@@ -84,8 +84,8 @@ dependencies {
 }
 
 /*
-Read this!  The BinTray API key is so long that it induces some Base64 encoders to line-break the long HTTP Basic Auth header.
-So this uploadArchive task must be executed from a Java7 JRE.  Strange, but works.  msp 12Aug2013
+The BinTray API key is sufficiently long that it induces an old Java6 bug (http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6459815)
+to line-break the long HTTP Basic Auth header.  So this uploadArchive task must be executed from a Java7 JRE.
  */
 uploadArchives {
     repositories {
