@@ -54,13 +54,20 @@ public class FeatherCon {
 
         public static final Integer DEFAULT_PORT = 8080;
         private Integer port = DEFAULT_PORT;
+
+        //
         private Class<? extends Servlet> servletClass;
         private Integer initOrder;
         private String servletName;
         private Map<String, String> initParameters = new HashMap<String, String>();
+        //
+
         private Map<String, Object> servletContextAttributes = new HashMap<String, Object>();
         private List<EventListener> servletContextListeners = new LinkedList<EventListener>();
         private List<FilterWrapper> filters = new LinkedList<FilterWrapper>();
+
+        private List<ServletConfiguration> servletConfigurations = new LinkedList<ServletConfiguration>();
+        private String contextName = "/";
 
         public FeatherConBuilder withServletClassName(String servletClass) {
             try {
@@ -125,6 +132,16 @@ public class FeatherCon {
             return this;
         }
 
+        public FeatherConBuilder withServletConfiguration(ServletConfiguration servletConfiguration) {
+            servletConfigurations.add(servletConfiguration);
+            return this;
+        }
+
+        public FeatherConBuilder withContextName(String contextName) {
+            this.contextName = contextName;
+            return this;
+        }
+
         public FeatherCon build() {
             if (servletClass == null) {
                 servletClass = DefaultServlet.class;
@@ -145,26 +162,27 @@ public class FeatherCon {
             port = port == null ? DEFAULT_PORT : port;
             Server server = new Server(new InetSocketAddress("0.0.0.0", port));
 
-            ServletContextHandler container = new ServletContextHandler(server, "/");
-            container.addServlet(servletHolder, "/*");
+            ServletContextHandler contextHandler = new ServletContextHandler(server, "/");
+            contextHandler.addServlet(servletHolder, "/*");
             HandlerList handlers = new HandlerList();
-            handlers.setHandlers(new Handler[]{container});
+            handlers.setHandlers(new Handler[]{contextHandler});
+
             server.setHandler(handlers);
 
             for (String key : initParameters.keySet()) {
                 servletHolder.setInitParameter(key, initParameters.get(key));
             }
             for (String key : servletContextAttributes.keySet()) {
-                container.getServletContext().setAttribute(key, servletContextAttributes.get(key));
+                contextHandler.getServletContext().setAttribute(key, servletContextAttributes.get(key));
             }
             for (EventListener eventListener : servletContextListeners) {
-                container.addEventListener(eventListener);
+                contextHandler.addEventListener(eventListener);
             }
             for (FilterWrapper filterBuffer : filters) {
-                container.addFilter(filterBuffer.filterClass, filterBuffer.pathSpec, filterBuffer.dispatches);
+                contextHandler.addFilter(filterBuffer.filterClass, filterBuffer.pathSpec, filterBuffer.dispatches);
             }
 
-            FeatherCon featherCon = new FeatherCon(server, port, servletHolder, container);
+            FeatherCon featherCon = new FeatherCon(server, port, servletHolder, contextHandler);
             reset();
             return featherCon;
         }
