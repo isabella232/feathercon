@@ -6,11 +6,12 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
 import org.eclipse.jetty.servlet.DefaultServlet;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -33,7 +34,8 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.fail;
 
 public class FeatherConTest {
-    private FeatherCon.FeatherConBuilder builder;
+
+    private final Logger logger = LoggerFactory.getLogger(FeatherConTest.class);
 
     private ServletContextListener servletContextListener = new ServletContextListener() {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -50,14 +52,19 @@ public class FeatherConTest {
     };
 
     private EnumSet<DispatcherType> dispatcherTypes = EnumSet.of(DispatcherType.ERROR);
+    private FeatherCon.FeatherConBuilder featherConBuilder;
+    private ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder;
 
-    @Before
-    public void setUp() throws Exception {
-        builder = new FeatherCon.FeatherConBuilder();
+    @BeforeClass
+    public static void setupClass() {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @Before
+    public void beforeMethod() {
+        featherConBuilder = new FeatherCon.FeatherConBuilder();
+        servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
     }
 
     @Test
@@ -71,16 +78,15 @@ public class FeatherConTest {
         Client client = Client.create(clientConfig);
         WebResource resource = client.resource("http://localhost:8080/users");
         User user = resource.accept(MediaType.APPLICATION_JSON_TYPE).get(User.class);
-        System.out.println(user);
+        logger.info("{}", user);
 
         server.stop();
     }
 
     @Test
     public void testWithStringServletClassName() throws Exception {
-        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
         ServletConfiguration servletConfig = servletConfigBuilder.withServletClassName("org.eclipse.jetty.servlet.DefaultServlet").build();
-        FeatherCon featherCon = builder.withServletConfiguration(servletConfig)
+        FeatherCon featherCon = featherConBuilder.withServletConfiguration(servletConfig)
                 .withServletContextListener(servletContextListener)
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
                 .build();
@@ -94,9 +100,8 @@ public class FeatherConTest {
 
     @Test
     public void testWithServletClass() throws Exception {
-        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
         ServletConfiguration servletConfig = servletConfigBuilder.withServletClass(DefaultServlet.class).build();
-        FeatherCon featherCon = builder.withServletConfiguration(servletConfig)
+        FeatherCon featherCon = featherConBuilder.withServletConfiguration(servletConfig)
                 .withServletContextListener(servletContextListener)
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
                 .build();
@@ -110,9 +115,8 @@ public class FeatherConTest {
 
     @Test
     public void testNoServletClassSpecified() throws Exception {
-        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
         ServletConfiguration servletConfiguration = servletConfigBuilder.build();
-        FeatherCon featherCon = new FeatherCon.FeatherConBuilder().withServletConfiguration(servletConfiguration).build();
+        FeatherCon featherCon = featherConBuilder.withServletConfiguration(servletConfiguration).build();
         assertThat(featherCon, is(notNullValue()));
         assertThat(featherCon.port, equalTo(FeatherCon.FeatherConBuilder.DEFAULT_PORT));
         featherCon.start();
@@ -123,22 +127,19 @@ public class FeatherConTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPicoNotAServletClass() throws Exception {
-        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
         servletConfigBuilder.withServletClassName("java.lang.Object").build();
     }
 
     @Test(expected = IllegalStateException.class)
     public void testNeedNewServletBuilder() throws Exception {
-        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
         servletConfigBuilder.build();
         servletConfigBuilder.build();
     }
 
     @Test(expected = IllegalStateException.class)
     public void testNeedNewServerBuilder() throws Exception {
-        FeatherCon.FeatherConBuilder builder = new FeatherCon.FeatherConBuilder();
-        builder.build();
-        builder.build();
+        featherConBuilder.build();
+        featherConBuilder.build();
     }
 
     @Test(expected = IllegalStateException.class)
