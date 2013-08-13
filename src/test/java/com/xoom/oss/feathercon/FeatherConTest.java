@@ -91,10 +91,10 @@ public class FeatherConTest {
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
                 .build();
         assertThat(featherCon, is(notNullValue()));
-        assertThat(featherCon.port, equalTo(FeatherCon.FeatherConBuilder.DEFAULT_PORT));
+        assertThat(featherCon.port, equalTo(FeatherCon.DEFAULT_PORT));
         featherCon.start();
         assertThat(featherCon.isRunning(), equalTo(true));
-        assertServerUp(FeatherCon.FeatherConBuilder.DEFAULT_PORT);
+        assertServerUp(FeatherCon.DEFAULT_PORT);
         featherCon.stop();
     }
 
@@ -106,10 +106,10 @@ public class FeatherConTest {
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
                 .build();
         assertThat(featherCon, is(notNullValue()));
-        assertThat(featherCon.port, equalTo(FeatherCon.FeatherConBuilder.DEFAULT_PORT));
+        assertThat(featherCon.port, equalTo(FeatherCon.DEFAULT_PORT));
         featherCon.start();
         assertThat(featherCon.isRunning(), equalTo(true));
-        assertServerUp(FeatherCon.FeatherConBuilder.DEFAULT_PORT);
+        assertServerUp(FeatherCon.DEFAULT_PORT);
         featherCon.stop();
     }
 
@@ -118,10 +118,10 @@ public class FeatherConTest {
         ServletConfiguration servletConfiguration = servletConfigBuilder.build();
         FeatherCon featherCon = featherConBuilder.withServletConfiguration(servletConfiguration).build();
         assertThat(featherCon, is(notNullValue()));
-        assertThat(featherCon.port, equalTo(FeatherCon.FeatherConBuilder.DEFAULT_PORT));
+        assertThat(featherCon.port, equalTo(FeatherCon.DEFAULT_PORT));
         featherCon.start();
         assertThat(featherCon.isRunning(), equalTo(true));
-        assertServerUp(FeatherCon.FeatherConBuilder.DEFAULT_PORT);
+        assertServerUp(FeatherCon.DEFAULT_PORT);
         featherCon.stop();
     }
 

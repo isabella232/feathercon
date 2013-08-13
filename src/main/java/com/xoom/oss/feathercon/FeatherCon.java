@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class FeatherCon {
+    public static final Integer DEFAULT_PORT = 8080;
     public final Integer port;
     private final Server server;
 
@@ -46,7 +47,6 @@ public class FeatherCon {
 
     public static class FeatherConBuilder {
         private final Logger logger = LoggerFactory.getLogger(FeatherConBuilder.class);
-        public static final Integer DEFAULT_PORT = 8080;
         private Integer port = DEFAULT_PORT;
         private String contextName = "/";
 
