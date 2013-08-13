@@ -23,7 +23,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.Socket;
 import java.util.EnumSet;
 
@@ -142,112 +141,12 @@ public class FeatherConTest {
         builder.build();
     }
 
-
-    /*
-    @Test
-    public void testBuilderFields() throws NoSuchFieldException, IllegalAccessException, InvocationTargetException {
-        Object v1 = new Object();
-        Object v2 = new Object();
-        Integer initOrder = 9;
-        Integer port = 90;
-        String filterPath = "/foo";
-        EnumSet<DispatcherType> dispatcherTypes = EnumSet.of(DispatcherType.ERROR);
-        Map<String, String> referenceInitParameters = new HashMap<String, String>();
-        referenceInitParameters.put("k1", "v1");
-        referenceInitParameters.put("k2", "v2");
-        Map<String, Object> referenceServletContextAttributes = new HashMap<String, Object>();
-        referenceServletContextAttributes.put("k1", v1);
-        referenceServletContextAttributes.put("k2", v2);
-        builder.withInitOrder(initOrder)
-                .withPort(port)
-                .withName("foo")
-                .withServletClassName("org.eclipse.jetty.servlet.DefaultServlet")
-                .withServletContextListener(servletContextListener)
-                .withFilter(AppFilter.class, filterPath, dispatcherTypes);
-        for (String key : referenceInitParameters.keySet()) {
-            builder.withInitParam(key, referenceInitParameters.get(key));
-        }
-        for (String key : referenceServletContextAttributes.keySet()) {
-            builder.withServletContextAttribute(key, referenceServletContextAttributes.get(key));
-        }
-
-        assertThat(initOrder, equalTo(getField("initOrder", builder, FeatherCon.FeatherConBuilder.class, Integer.class)));
-        assertThat(port, equalTo(getField("port", builder, FeatherCon.FeatherConBuilder.class, Integer.class)));
-        assertThat("foo", equalTo(getField("servletName", builder, FeatherCon.FeatherConBuilder.class, String.class)));
-        assertThat(org.eclipse.jetty.servlet.DefaultServlet.class, equalTo(getField("servletClass", builder, FeatherCon.FeatherConBuilder.class, Class.class)));
-
-        Map<String, String> initParameters = getField("initParameters", builder, FeatherCon.FeatherConBuilder.class, Map.class);
-        assertThat(2, equalTo(initParameters.size()));
-        assertThat(initParameters.get("k1"), equalTo("v1"));
-        assertThat(initParameters.get("k2"), equalTo("v2"));
-
-
-        Map<String, Object> servletContextAttributes = getField("servletContextAttributes", builder, FeatherCon.FeatherConBuilder.class, Map.class);
-        assertThat(2, equalTo(servletContextAttributes.size()));
-        assertThat(servletContextAttributes.get("k1"), equalTo(v1));
-        assertThat(servletContextAttributes.get("k2"), equalTo(v2));
-
-
-        List<EventListener> servletContextListeners = getField("servletContextListeners", builder, FeatherCon.FeatherConBuilder.class, List.class);
-        assertThat(1, equalTo(servletContextListeners.size()));
-        assertThat(servletContextListener, equalTo(servletContextListeners.get(0)));
-
-
-        List<FeatherCon.FeatherConBuilder.FilterWrapper> filters = getField("filters", builder, FeatherCon.FeatherConBuilder.class, List.class);
-        assertThat(1, equalTo(filters.size()));
-        FeatherCon.FeatherConBuilder.FilterWrapper filterBuffer = filters.get(0);
-        assertEquals(AppFilter.class, (filterBuffer.filterClass));
-        assertThat("/foo", equalTo(filterBuffer.pathSpec));
-        assertThat(dispatcherTypes, equalTo(filterBuffer.dispatches));
-
-        FeatherCon container = builder.build();
-
-        assertThat(getField("initOrder", builder, FeatherCon.FeatherConBuilder.class, Integer.class), is(nullValue()));
-        assertThat(FeatherCon.FeatherConBuilder.DEFAULT_PORT, equalTo(getField("port", builder, FeatherCon.FeatherConBuilder.class, Integer.class)));
-        assertThat((getField("servletName", builder, FeatherCon.FeatherConBuilder.class, String.class)), is(nullValue()));
-        assertThat(getField("servletClass", builder, FeatherCon.FeatherConBuilder.class, Class.class), is(nullValue()));
-        initParameters = getField("initParameters", builder, FeatherCon.FeatherConBuilder.class, Map.class);
-        assertThat(0, equalTo(initParameters.size()));
-        servletContextAttributes = getField("servletContextAttributes", builder, FeatherCon.FeatherConBuilder.class, Map.class);
-        assertThat(0, equalTo(servletContextAttributes.size()));
-        servletContextListeners = getField("servletContextListeners", builder, FeatherCon.FeatherConBuilder.class, List.class);
-        assertThat(0, equalTo(servletContextListeners.size()));
-        filters = getField("filters", builder, FeatherCon.FeatherConBuilder.class, List.class);
-        assertThat(0, equalTo(filters.size()));
-
-        ServletHolder servletHolder = getField("servletHolder", container, FeatherCon.class, ServletHolder.class);
-        servletHolder.getInitOrder();
-        assertThat(initOrder, equalTo(servletHolder.getInitOrder()));
-
-        Map<String, String> initParameters1 = servletHolder.getInitParameters();
-        assertThat(referenceInitParameters, equalTo(initParameters1));
-
-        ServletContextHandler contextHandler = getField("container", container, FeatherCon.class, ServletContextHandler.class);
-        ContextHandler.Context servletContext = contextHandler.getServletContext();
-        Enumeration<String> attributeNames = servletContext.getAttributeNames();
-        while (attributeNames.hasMoreElements()) {
-            String key = attributeNames.nextElement();
-            assertThat(referenceServletContextAttributes.containsKey(key), is(true));
-            assertThat(referenceServletContextAttributes.get(key), equalTo(servletContext.getAttribute(key)));
-        }
-        EventListener[] eventListeners = contextHandler.getEventListeners();
-        assertThat(1, equalTo(eventListeners.length));
-
-        Server server = getField("server", container, FeatherCon.class, Server.class);
-        Connector[] connectors = server.getConnectors();
-        assertThat(1, equalTo(connectors.length));
-        assertThat(port, equalTo(connectors[0].getPort()));
-
-        FilterMapping[] filterMappings = contextHandler.getServletHandler().getFilterMappings();
-        assertThat(1, equalTo(filterMappings.length));
-        assertThat(filterPath, equalTo(filterMappings[0].getPathSpecs()[0]));
-    }
-*/
-
-    private <T> T getField(String fieldName, Object instance, Class instanceClass, Class<T> returnType) throws NoSuchFieldException, IllegalAccessException {
-        Field declaredField = instanceClass.getDeclaredField(fieldName);
-        declaredField.setAccessible(true);
-        return returnType.cast(declaredField.get(instance));
+    @Test(expected = IllegalStateException.class)
+    public void testPathSpecCollision() {
+        new FeatherCon.FeatherConBuilder()
+                .withServletConfiguration(new ServletConfiguration.ServletConfigurationBuilder().withPathSpec("/*").build())
+                .withServletConfiguration(new ServletConfiguration.ServletConfigurationBuilder().withPathSpec("/*").build())
+                .build();
     }
 
     private void assertServerUp(int port) {

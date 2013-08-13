@@ -105,6 +105,7 @@ public class FeatherCon {
             if (built) {
                 throw new IllegalStateException("This builder can be used to produce one server instance.  Please create a new builder.");
             }
+
             port = port == null ? DEFAULT_PORT : port;
             Server server = new Server(new InetSocketAddress("0.0.0.0", port));
 
@@ -114,7 +115,7 @@ public class FeatherCon {
                 String p = servletConfiguration.pathSpec;
                 boolean wasNotAlreadyPresent = pathSpecFilter.add(p);
                 if (!wasNotAlreadyPresent) {
-                    throw new RuntimeException(String.format("Another ServletConfiguration is using this pathSpec %s", p));
+                    throw new IllegalStateException(String.format("Another ServletConfiguration is already using this pathSpec %s", p));
                 }
                 contextHandler.addServlet(servletConfiguration.servletHolder, p);
             }
