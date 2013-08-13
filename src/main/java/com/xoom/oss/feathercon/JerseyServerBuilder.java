@@ -16,9 +16,13 @@ public class JerseyServerBuilder extends FeatherCon.FeatherConBuilder {
      * @param scanPackages Semicolon-separated list of packages to scan for JAX-RS resources.
      */
     public JerseyServerBuilder(String scanPackages) {
-        withServletClassName("com.sun.jersey.spi.container.servlet.ServletContainer")
+        ServletConfiguration.ServletConfigurationBuilder servletConfigurationBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        servletConfigurationBuilder.withServletClassName("com.sun.jersey.spi.container.servlet.ServletContainer")
+                .withServletName("REST Server")
                 .withInitOrder(1)
-                .withInitParam("com.sun.jersey.config.property.packages", scanPackages)
-                .withInitParam("com.sun.jersey.api.json.POJOMappingFeature", "true");
+                .withInitParameter("com.sun.jersey.config.property.packages", scanPackages)
+                .withInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
+        ServletConfiguration build = servletConfigurationBuilder.build();
+        withServletConfiguration(build);
     }
 }

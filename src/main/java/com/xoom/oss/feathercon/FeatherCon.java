@@ -3,34 +3,29 @@ package com.xoom.oss.feathercon;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
-import javax.servlet.Servlet;
 import java.net.InetSocketAddress;
 import java.util.EnumSet;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FeatherCon {
     public final Integer port;
     private final Server server;
-    private final ServletHolder servletHolder;
-    private final ServletContextHandler container;
 
-    private FeatherCon(Server server, Integer port, ServletHolder servletHolder, ServletContextHandler container) {
+    private FeatherCon(Server server, Integer port) {
         this.server = server;
         this.port = port;
-        this.servletHolder = servletHolder;
-        this.container = container;
     }
 
     public void start() throws Exception {
@@ -51,45 +46,19 @@ public class FeatherCon {
 
     public static class FeatherConBuilder {
         private final Logger logger = LoggerFactory.getLogger(FeatherConBuilder.class);
-
         public static final Integer DEFAULT_PORT = 8080;
         private Integer port = DEFAULT_PORT;
-
-        //
-        private Class<? extends Servlet> servletClass;
-        private Integer initOrder;
-        private String servletName;
-        private Map<String, String> initParameters = new HashMap<String, String>();
-        //
+        private String contextName = "/";
 
         private Map<String, Object> servletContextAttributes = new HashMap<String, Object>();
         private List<EventListener> servletContextListeners = new LinkedList<EventListener>();
         private List<FilterWrapper> filters = new LinkedList<FilterWrapper>();
-
         private List<ServletConfiguration> servletConfigurations = new LinkedList<ServletConfiguration>();
-        private String contextName = "/";
 
-        public FeatherConBuilder withServletClassName(String servletClass) {
-            try {
-                this.servletClass = (Class<? extends Servlet>) getClass().getClassLoader().loadClass(servletClass);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(String.format("Cannot load specified servlet class %s", servletClass), e);
-            }
-            return this;
-        }
-
-        public FeatherConBuilder withServletClassName(Class<? extends Servlet> servletClass) {
-            this.servletClass = servletClass;
-            return this;
-        }
+        private Boolean built = false;
 
         public FeatherConBuilder withPort(Integer port) {
             this.port = port;
-            return this;
-        }
-
-        public FeatherConBuilder withInitParam(String key, String value) {
-            initParameters.put(key, value);
             return this;
         }
 
@@ -117,16 +86,6 @@ public class FeatherCon {
             return this;
         }
 
-        public FeatherConBuilder withName(String servletName) {
-            this.servletName = servletName;
-            return this;
-        }
-
-        public FeatherConBuilder withInitOrder(Integer initOrder) {
-            this.initOrder = initOrder;
-            return this;
-        }
-
         public FeatherConBuilder withFilter(Class<? extends Filter> filterClass, String pathSpec, EnumSet<DispatcherType> dispatches) {
             filters.add(new FilterWrapper(filterClass, pathSpec, dispatches));
             return this;
@@ -143,35 +102,26 @@ public class FeatherCon {
         }
 
         public FeatherCon build() {
-            if (servletClass == null) {
-                servletClass = DefaultServlet.class;
-                logger.info("No servlet class specified, defaulting to %s {}", DefaultServlet.class.getCanonicalName());
+            if (built) {
+                throw new IllegalStateException("This builder can be used to produce one server instance.  Please create a new builder.");
             }
-            if (!Servlet.class.isAssignableFrom(servletClass)) {
-                throw new IllegalArgumentException(String.format("Provided class %s is not a servlet", servletClass.getCanonicalName()));
-            }
-
-            ServletHolder servletHolder = new ServletHolder(servletClass);
-            if (initOrder != null) {
-                servletHolder.setInitOrder(initOrder);
-            }
-            if (servletName != null) {
-                servletHolder.setName(servletName);
-            }
-
             port = port == null ? DEFAULT_PORT : port;
             Server server = new Server(new InetSocketAddress("0.0.0.0", port));
 
-            ServletContextHandler contextHandler = new ServletContextHandler(server, "/");
-            contextHandler.addServlet(servletHolder, "/*");
+            ServletContextHandler contextHandler = new ServletContextHandler(server, contextName);
+            Set<String> pathSpecFilter = new HashSet<String>();
+            for (ServletConfiguration servletConfiguration : servletConfigurations) {
+                String p = servletConfiguration.pathSpec;
+                boolean wasNotAlreadyPresent = pathSpecFilter.add(p);
+                if (!wasNotAlreadyPresent) {
+                    throw new RuntimeException(String.format("Another ServletConfiguration is using this pathSpec %s", p));
+                }
+                contextHandler.addServlet(servletConfiguration.servletHolder, p);
+            }
             HandlerList handlers = new HandlerList();
             handlers.setHandlers(new Handler[]{contextHandler});
-
             server.setHandler(handlers);
 
-            for (String key : initParameters.keySet()) {
-                servletHolder.setInitParameter(key, initParameters.get(key));
-            }
             for (String key : servletContextAttributes.keySet()) {
                 contextHandler.getServletContext().setAttribute(key, servletContextAttributes.get(key));
             }
@@ -182,20 +132,10 @@ public class FeatherCon {
                 contextHandler.addFilter(filterBuffer.filterClass, filterBuffer.pathSpec, filterBuffer.dispatches);
             }
 
-            FeatherCon featherCon = new FeatherCon(server, port, servletHolder, contextHandler);
-            reset();
+            FeatherCon featherCon = new FeatherCon(server, port);
+            built = true;
+            logger.info("Built {}", this);
             return featherCon;
-        }
-
-        private void reset() {
-            servletClass = null;
-            port = DEFAULT_PORT;
-            initOrder = null;
-            servletName = null;
-            initParameters.clear();
-            servletContextAttributes.clear();
-            servletContextListeners.clear();
-            filters.clear();
         }
 
         class FilterWrapper {
@@ -208,6 +148,19 @@ public class FeatherCon {
                 this.pathSpec = pathSpec;
                 this.dispatches = dispatches;
             }
+        }
+
+        @Override
+        public String toString() {
+            return "FeatherConBuilder{" +
+                    "port=" + port +
+                    ", contextName='" + contextName + '\'' +
+                    ", servletContextAttributes=" + servletContextAttributes +
+                    ", servletContextListeners=" + servletContextListeners +
+                    ", filters=" + filters +
+                    ", servletConfigurations=" + servletConfigurations +
+                    ", built=" + built +
+                    '}';
         }
     }
 
