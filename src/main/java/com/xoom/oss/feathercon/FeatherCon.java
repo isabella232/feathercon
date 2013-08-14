@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.EventListener;
 import java.util.HashMap;
@@ -31,7 +30,7 @@ public class FeatherCon {
         this.server = server;
         this.port = port;
         this.contextName = contextName;
-        this.servletContextAttributes = Collections.unmodifiableMap(servletContextAttributes);
+        this.servletContextAttributes = servletContextAttributes;
     }
 
     public void start() throws Exception {
