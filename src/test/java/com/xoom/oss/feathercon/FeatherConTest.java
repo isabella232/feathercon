@@ -84,6 +84,41 @@ public class FeatherConTest {
     }
 
     @Test
+    public void testJerseyServerWithStaticContent() throws Exception {
+        String scanPackages = "com.xoom.oss.feathercon";
+        String jerseyPathSpec = "api";
+        ServletConfiguration.ServletConfigurationBuilder jerseyBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        jerseyBuilder.withServletClassName("com.sun.jersey.spi.container.servlet.ServletContainer")
+                .withServletName("REST Server")
+                .withPathSpec(String.format("/%s/*", jerseyPathSpec))
+                .withInitOrder(1)
+                .withInitParameter("com.sun.jersey.config.property.packages", scanPackages)
+                .withInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
+
+        ServletConfiguration.ServletConfigurationBuilder staticContentBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        staticContentBuilder
+                .withServletClass(DefaultServlet.class)
+                .withPathSpec("/")
+                .withInitParameter("dirAllowed", "true")
+                .withInitParameter("resourceBase", "/tmp/");
+
+        FeatherCon.FeatherConBuilder serverBuilder = new FeatherCon.FeatherConBuilder();
+        serverBuilder.withServletConfiguration(jerseyBuilder.build()).withServletConfiguration(staticContentBuilder.build());
+
+        FeatherCon server = serverBuilder.build();
+        server.start();
+
+        ClientConfig clientConfig = new DefaultClientConfig();
+        clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+        Client client = Client.create(clientConfig);
+        WebResource resource = client.resource(String.format("http://localhost:8080/%s/users", jerseyPathSpec));
+        User user = resource.accept(MediaType.APPLICATION_JSON_TYPE).get(User.class);
+        logger.info("{}", user);
+
+        server.stop();
+    }
+
+    @Test
     public void testWithStringServletClassName() throws Exception {
         ServletConfiguration servletConfig = servletConfigBuilder.withServletClassName("org.eclipse.jetty.servlet.DefaultServlet").build();
         FeatherCon featherCon = featherConBuilder.withServletConfiguration(servletConfig)
