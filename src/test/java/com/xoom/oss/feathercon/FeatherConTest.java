@@ -24,6 +24,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.ws.rs.core.MediaType;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.EnumSet;
@@ -69,22 +71,6 @@ public class FeatherConTest {
     }
 
     @Test
-    public void testJerseyServer() throws Exception {
-        String scanPackages = "com.xoom.oss.feathercon";
-        FeatherCon server = new JerseyServerBuilder(scanPackages).build();
-        server.start();
-
-        ClientConfig clientConfig = new DefaultClientConfig();
-        clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-        Client client = Client.create(clientConfig);
-        WebResource resource = client.resource("http://localhost:8080/users");
-        User user = resource.accept(MediaType.APPLICATION_JSON_TYPE).get(User.class);
-        logger.info("{}", user);
-
-        server.stop();
-    }
-
-    @Test
     public void testJerseyServerWithStaticContent() throws Exception {
         String scanPackages = "com.xoom.oss.feathercon";
         String jerseyPathSpec = "api";
@@ -100,7 +86,6 @@ public class FeatherConTest {
         staticContentBuilder
                 .withServletClass(DefaultServlet.class)
                 .withPathSpec("/")
-                .withInitParameter("dirAllowed", "true")
                 .withInitParameter("resourceBase", "test-data/static/");
 
         FeatherCon.FeatherConBuilder serverBuilder = new FeatherCon.FeatherConBuilder();
@@ -109,17 +94,26 @@ public class FeatherConTest {
         FeatherCon server = serverBuilder.build();
         server.start();
 
+        // consume resources and compare
         ClientConfig clientConfig = new DefaultClientConfig();
         clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
         Client client = Client.create(clientConfig);
         WebResource resource = client.resource(String.format("http://localhost:8080/%s/users", jerseyPathSpec));
         User user = resource.accept(MediaType.APPLICATION_JSON_TYPE).get(User.class);
-        logger.info("{}", user);
+        assertThat(user.name, equalTo("Bob Loblaw"));
+        assertThat(user.emailAddress, equalTo("bob@lawbomb.example.com"));
 
         resource = client.resource("http://localhost:8080/hello.html");
         ClientResponse clientResponse = resource.get(ClientResponse.class);
         String html = clientResponse.getEntity(String.class);
-        logger.info("{}", html);
+        FileReader fileReader = new FileReader("test-data/static/hello.html");
+        BufferedReader br = new BufferedReader(fileReader);
+        String s;
+        StringBuilder sb = new StringBuilder();
+        while ((s = br.readLine()) != null) {
+            sb.append(s).append('\n');
+        }
+        assertThat(html, equalTo(sb.toString()));
 
         server.stop();
     }
@@ -127,43 +121,43 @@ public class FeatherConTest {
     @Test
     public void testWithStringServletClassName() throws Exception {
         ServletConfiguration servletConfig = servletConfigBuilder.withServletClassName("org.eclipse.jetty.servlet.DefaultServlet").build();
-        FeatherCon featherCon = featherConBuilder.withServletConfiguration(servletConfig)
+        FeatherCon server = featherConBuilder.withServletConfiguration(servletConfig)
                 .withServletContextListener(servletContextListener)
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
                 .build();
-        assertThat(featherCon, is(notNullValue()));
-        assertThat(featherCon.port, equalTo(FeatherCon.DEFAULT_PORT));
-        featherCon.start();
-        assertThat(featherCon.isRunning(), equalTo(true));
+        assertThat(server, is(notNullValue()));
+        assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
+        server.start();
+        assertThat(server.isRunning(), equalTo(true));
         assertServerUp(FeatherCon.DEFAULT_PORT);
-        featherCon.stop();
+        server.stop();
     }
 
     @Test
     public void testWithServletClass() throws Exception {
         ServletConfiguration servletConfig = servletConfigBuilder.withServletClass(DefaultServlet.class).build();
-        FeatherCon featherCon = featherConBuilder.withServletConfiguration(servletConfig)
+        FeatherCon server = featherConBuilder.withServletConfiguration(servletConfig)
                 .withServletContextListener(servletContextListener)
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
                 .build();
-        assertThat(featherCon, is(notNullValue()));
-        assertThat(featherCon.port, equalTo(FeatherCon.DEFAULT_PORT));
-        featherCon.start();
-        assertThat(featherCon.isRunning(), equalTo(true));
+        assertThat(server, is(notNullValue()));
+        assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
+        server.start();
+        assertThat(server.isRunning(), equalTo(true));
         assertServerUp(FeatherCon.DEFAULT_PORT);
-        featherCon.stop();
+        server.stop();
     }
 
     @Test
     public void testNoServletClassSpecified() throws Exception {
         ServletConfiguration servletConfiguration = servletConfigBuilder.build();
-        FeatherCon featherCon = featherConBuilder.withServletConfiguration(servletConfiguration).build();
-        assertThat(featherCon, is(notNullValue()));
-        assertThat(featherCon.port, equalTo(FeatherCon.DEFAULT_PORT));
-        featherCon.start();
-        assertThat(featherCon.isRunning(), equalTo(true));
+        FeatherCon server = featherConBuilder.withServletConfiguration(servletConfiguration).build();
+        assertThat(server, is(notNullValue()));
+        assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
+        server.start();
+        assertThat(server.isRunning(), equalTo(true));
         assertServerUp(FeatherCon.DEFAULT_PORT);
-        featherCon.stop();
+        server.stop();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -220,6 +214,4 @@ public class FeatherConTest {
         public void destroy() {
         }
     }
-
-
 }

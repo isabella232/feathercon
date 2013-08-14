@@ -23,8 +23,10 @@ one up, which is taken from one of the unit tests:
 We've also found FeatherCon to be useful in unit tests, where spinning up a fast backend on a per-test basis to test
 REST clients was needed.
 
-The FeatherCon builder com.xoom.feathercon.FeatherCon.FeatherConBuilder can be used to host an arbitrary servlet
-with the appropriate configs exercised through the various builder withXXX methods.
+The FeatherCon builder com.xoom.feathercon.FeatherCon.FeatherConBuilder can be used to host a set of arbitrary servlets
+with the appropriate configs exercised through the various builder withXXX methods.  For example, one might host a
+RESTful web service in the same FeatherCon instance as the DefaultServlet, the latter of which hosts static content.
+See the unit test for an example:  com.xoom.oss.feathercon.FeatherConTest#testJerseyServerWithStaticContent.
 
 ### Building
 
