@@ -22,6 +22,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.ws.rs.core.MediaType;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
@@ -92,11 +93,13 @@ public class FeatherConTest {
                 .withInitParameter("com.sun.jersey.config.property.packages", scanPackages)
                 .withInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
 
+        String resourcePath = getClass().getResource("/content-root/anchor").getFile();
+        String resourceBase = new File(resourcePath).getParentFile().getAbsolutePath() + "/static/";
         ServletConfiguration.ServletConfigurationBuilder staticContentBuilder = new ServletConfiguration.ServletConfigurationBuilder();
         staticContentBuilder
                 .withServletClass(DefaultServlet.class)
                 .withPathSpec("/")
-                .withInitParameter("resourceBase", "test-data/static/");
+                .withInitParameter("resourceBase", resourceBase);
         staticContentBuilder.toString();
         FeatherCon.FeatherConBuilder serverBuilder = new FeatherCon.FeatherConBuilder();
         serverBuilder.withServletConfiguration(jerseyBuilder.build()).withServletConfiguration(staticContentBuilder.build());
@@ -116,7 +119,7 @@ public class FeatherConTest {
         resource = client.resource("http://localhost:8080/hello.html");
         ClientResponse clientResponse = resource.get(ClientResponse.class);
         String html = clientResponse.getEntity(String.class);
-        FileReader fileReader = new FileReader("test-data/static/hello.html");
+        FileReader fileReader = new FileReader(String.format("%s/hello.html", resourceBase));
         BufferedReader br = new BufferedReader(fileReader);
         String s;
         StringBuilder sb = new StringBuilder();
