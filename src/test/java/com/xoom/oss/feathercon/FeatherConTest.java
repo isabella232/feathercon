@@ -61,6 +61,11 @@ public class FeatherConTest {
         FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
                 .withPort(8888).withContextName("rest").withServletContextAttribute("a", "b")
                 .withServletContextListener("com.xoom.oss.feathercon.What");
+        FeatherCon build = rest.build();
+        assertThat(build.contextName, equalTo("rest"));
+        assertThat(build.servletContextAttributes.isEmpty(), equalTo(false));
+        assertThat(build.servletContextAttributes.containsKey("a"), equalTo(true));
+        assertThat(build.servletContextAttributes.get("a"), equalTo((Object) "b"));
     }
 
     @Test
