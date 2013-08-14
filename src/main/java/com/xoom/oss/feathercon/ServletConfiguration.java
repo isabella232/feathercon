@@ -47,7 +47,7 @@ public class ServletConfiguration {
                 this.servletClass = (Class<? extends Servlet>) getClass().getClassLoader().loadClass(servletClassName);
                 return this;
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                throw new IllegalArgumentException(e);
             }
         }
 

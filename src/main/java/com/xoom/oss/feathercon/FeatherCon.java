@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.EventListener;
 import java.util.HashMap;
@@ -22,11 +23,15 @@ import java.util.Set;
 public class FeatherCon {
     public static final Integer DEFAULT_PORT = 8080;
     public final Integer port;
+    public final String contextName;
+    public final Map<String, Object> servletContextAttributes;
     private final Server server;
 
-    private FeatherCon(Server server, Integer port) {
+    private FeatherCon(Server server, Integer port, String contextName, Map<String, Object> servletContextAttributes) {
         this.server = server;
         this.port = port;
+        this.contextName = contextName;
+        this.servletContextAttributes = Collections.unmodifiableMap(servletContextAttributes);
     }
 
     public void start() throws Exception {
@@ -133,7 +138,7 @@ public class FeatherCon {
                 contextHandler.addFilter(filterBuffer.filterClass, filterBuffer.pathSpec, filterBuffer.dispatches);
             }
 
-            FeatherCon featherCon = new FeatherCon(server, port);
+            FeatherCon featherCon = new FeatherCon(server, port, contextName, servletContextAttributes);
             built = true;
             logger.info("Built {}", this);
             return featherCon;

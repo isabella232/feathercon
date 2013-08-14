@@ -4,18 +4,10 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'maven'
 
-/*
-The format of the bintray.gradle file is
-
-ext.bintray =[
-   user: "theuser",
-   apikey: "thekey"
-]
-
-This file must exist in the project top-level directory.
-
- */
 apply from: file("${rootDir}/bintray.gradle")
+if (!hasProperty("bintray")) {
+    ext.bintray = [user: "", apikey: ""]
+}
 
 group = "com.xoom.oss"
 version = "1.2"

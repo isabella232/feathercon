@@ -10,15 +10,12 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -29,30 +26,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.fail;
 
 public class FeatherConTest {
 
-    private final Logger logger = LoggerFactory.getLogger(FeatherConTest.class);
-
-    private ServletContextListener servletContextListener = new ServletContextListener() {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-        @Override
-        public void contextInitialized(ServletContextEvent sce) {
-            logger.info("ServletContextListener init");
-        }
-
-        @Override
-        public void contextDestroyed(ServletContextEvent sce) {
-            logger.info("ServletContextListener destroy");
-        }
-    };
+    private ServletContextListener servletContextListener = new ContextListener();
 
     private EnumSet<DispatcherType> dispatcherTypes = EnumSet.of(DispatcherType.ERROR);
     private FeatherCon.FeatherConBuilder featherConBuilder;
@@ -68,6 +54,25 @@ public class FeatherConTest {
     public void beforeMethod() {
         featherConBuilder = new FeatherCon.FeatherConBuilder();
         servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testJerseyBuilderListenerNotFound() {
+        FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
+                .withPort(8888).withContextName("rest").withServletContextAttribute("a", "b")
+                .withServletContextListener("com.xoom.oss.feathercon.What");
+    }
+
+    @Test
+    public void testJerseyBuilder() {
+        FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
+                .withPort(8888).withContextName("rest").withServletContextAttribute("a", "b")
+                .withServletContextListener("com.xoom.oss.feathercon.ContextListener");
+        rest.toString();
+        FeatherCon build = rest.build();
+        assertThat(build.port, equalTo(8888));
+        assertThat(build.contextName, equalTo("rest"));
+        assertThat(build.servletContextAttributes.isEmpty(), equalTo(false));
     }
 
     @Test
@@ -87,7 +92,7 @@ public class FeatherConTest {
                 .withServletClass(DefaultServlet.class)
                 .withPathSpec("/")
                 .withInitParameter("resourceBase", "test-data/static/");
-
+        staticContentBuilder.toString();
         FeatherCon.FeatherConBuilder serverBuilder = new FeatherCon.FeatherConBuilder();
         serverBuilder.withServletConfiguration(jerseyBuilder.build()).withServletConfiguration(staticContentBuilder.build());
 
@@ -120,7 +125,20 @@ public class FeatherConTest {
 
     @Test
     public void testWithStringServletClassName() throws Exception {
-        ServletConfiguration servletConfig = servletConfigBuilder.withServletClassName("org.eclipse.jetty.servlet.DefaultServlet").build();
+        Map<String, String> initParams = new HashMap<String, String>();
+        initParams.put("key", "value");
+        ServletConfiguration servletConfig = servletConfigBuilder.withServletClassName("org.eclipse.jetty.servlet.DefaultServlet")
+                .withInitParameters(initParams)
+                .build();
+        servletConfig.toString();
+        assertThat(servletConfig.servletClass.equals(DefaultServlet.class), equalTo(true));
+        assertThat(servletConfig.pathSpec, equalTo("/*"));
+        assertThat(servletConfig.initOrder, equalTo(1));
+        assertThat(servletConfig.servletName, is(nullValue()));
+        assertThat(servletConfig.initParameters.isEmpty(), equalTo(false));
+        assertThat(servletConfig.initParameters.containsKey("key"), equalTo(true));
+        assertThat(servletConfig.initParameters.get("key"), equalTo("value"));
+
         FeatherCon server = featherConBuilder.withServletConfiguration(servletConfig)
                 .withServletContextListener(servletContextListener)
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
@@ -135,7 +153,15 @@ public class FeatherConTest {
 
     @Test
     public void testWithServletClass() throws Exception {
-        ServletConfiguration servletConfig = servletConfigBuilder.withServletClass(DefaultServlet.class).build();
+        ServletConfiguration servletConfig = servletConfigBuilder.withServletClass(DefaultServlet.class)
+                .withServletName("fooServlet")
+                .withInitParameter("key", "value")
+                .build();
+        assertThat(servletConfig.servletName, equalTo("fooServlet"));
+        assertThat(servletConfig.initParameters.isEmpty(), equalTo(false));
+        assertThat(servletConfig.initParameters.containsKey("key"), equalTo(true));
+        assertThat(servletConfig.initParameters.get("key"), equalTo("value"));
+
         FeatherCon server = featherConBuilder.withServletConfiguration(servletConfig)
                 .withServletContextListener(servletContextListener)
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
@@ -151,6 +177,8 @@ public class FeatherConTest {
     @Test
     public void testNoServletClassSpecified() throws Exception {
         ServletConfiguration servletConfiguration = servletConfigBuilder.build();
+        assertThat(servletConfiguration.servletClass.equals(DefaultServlet.class), equalTo(true));
+
         FeatherCon server = featherConBuilder.withServletConfiguration(servletConfiguration).build();
         assertThat(server, is(notNullValue()));
         assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
@@ -161,7 +189,7 @@ public class FeatherConTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPicoNotAServletClass() throws Exception {
+    public void testNotAServletClass() throws Exception {
         servletConfigBuilder.withServletClassName("java.lang.Object").build();
     }
 
@@ -183,6 +211,11 @@ public class FeatherConTest {
                 .withServletConfiguration(new ServletConfiguration.ServletConfigurationBuilder().withPathSpec("/*").build())
                 .withServletConfiguration(new ServletConfiguration.ServletConfigurationBuilder().withPathSpec("/*").build())
                 .build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testServletClassNotFound() {
+        servletConfigBuilder.withServletClassName("com.example.NoSuchServlet");
     }
 
     private void assertServerUp(int port) {
