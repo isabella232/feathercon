@@ -30,7 +30,7 @@ See the unit test for an example:  com.xoom.oss.feathercon.FeatherConTest#testJe
 
 ### Building
 
-To build using the included Gradle Wrapper (http://www.gradle.org/docs/current/userguide/gradle_wrapper.html):
+To build using the included [Gradle Wrapper](http://www.gradle.org/docs/current/userguide/gradle_wrapper.html):
 
 $ ./gradlew clean build
 
