@@ -1,6 +1,7 @@
 package com.xoom.oss.feathercon;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -100,7 +101,7 @@ public class FeatherConTest {
                 .withServletClass(DefaultServlet.class)
                 .withPathSpec("/")
                 .withInitParameter("dirAllowed", "true")
-                .withInitParameter("resourceBase", "/tmp/");
+                .withInitParameter("resourceBase", "test-data/static/");
 
         FeatherCon.FeatherConBuilder serverBuilder = new FeatherCon.FeatherConBuilder();
         serverBuilder.withServletConfiguration(jerseyBuilder.build()).withServletConfiguration(staticContentBuilder.build());
@@ -114,6 +115,11 @@ public class FeatherConTest {
         WebResource resource = client.resource(String.format("http://localhost:8080/%s/users", jerseyPathSpec));
         User user = resource.accept(MediaType.APPLICATION_JSON_TYPE).get(User.class);
         logger.info("{}", user);
+
+        resource = client.resource("http://localhost:8080/hello.html");
+        ClientResponse clientResponse = resource.get(ClientResponse.class);
+        String html = clientResponse.getEntity(String.class);
+        logger.info("{}", html);
 
         server.stop();
     }
