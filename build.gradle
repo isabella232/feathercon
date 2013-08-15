@@ -2,18 +2,18 @@ description = "Xoom FeatherCon Servlet Container"
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 def btCredentialFile = new File(new File(System.getProperty("user.home"), ".gradle"), "bintray.gradle")
-if( btCredentialFile.exists() ) {
-   apply from: file(btCredentialFile.getAbsolutePath())
+if (btCredentialFile.exists()) {
+    apply from: file(btCredentialFile.getAbsolutePath())
 }
 if (!hasProperty("bintray")) {
     ext.bintray = [user: "", apikey: ""]
 }
 
 group = "com.xoom.oss"
-version = "1.2"
+version = "1.2.1"
 
 buildscript {
     repositories {
@@ -23,8 +23,6 @@ buildscript {
         classpath 'org.ajoberstar:gradle-jacoco:0.3.0'
     }
 }
-
-sourceCompatibility = targetCompatibility = 1.6
 
 repositories {
     mavenCentral()
@@ -66,31 +64,35 @@ tasks.withType(Test) {
 
 tasks.withType(Compile) {
     options.encoding = 'UTF-8'
+    sourceCompatibility = targetCompatibility = 1.6
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.7'
 }
 
-configurations {
-    deployerJars
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
 }
 
-dependencies {
-    deployerJars 'org.apache.maven.wagon:wagon-http:2.4'
-}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar {
+                classifier "source"
+            }
+        }
+    }
 
-/*
-The BinTray API key is sufficiently long that it induces an old Java6 bug (http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6459815)
-to line-break the long HTTP Basic Auth header.  So this uploadArchive task must be executed from a Java7 JRE.
- */
-uploadArchives {
     repositories {
-        mavenDeployer {
-            name = 'xoom-xoomoss-feathercon'
-            configuration = configurations.deployerJars
-            repository(url: "https://api.bintray.com/maven/xoom/xoomoss/feathercon") {
-                authentication(userName: bintray.user, password: bintray.apikey)
+        maven {
+            url "https://api.bintray.com/maven/xoom/xoomoss/feathercon"
+            credentials {
+                println "user: <${bintray.user}>"
+                println "apikey: <${bintray.apikey}>"
+                username = bintray.user
+                password = bintray.apikey
             }
         }
     }
