@@ -4,7 +4,7 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'maven'
 
-apply from: file("${rootDir}/bintray.gradle")
+apply from: file(new File(new File(System.getProperty("user.home"), ".gradle"), "bintray.gradle").getAbsolutePath())
 if (!hasProperty("bintray")) {
     ext.bintray = [user: "", apikey: ""]
 }
