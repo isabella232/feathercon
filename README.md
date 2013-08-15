@@ -35,13 +35,17 @@ FeatherCon is also useful in unit tests, where one needs to quickly spin up a fa
 
 To build using the included [Gradle Wrapper](http://www.gradle.org/docs/current/userguide/gradle_wrapper.html):
 
-$ ./gradlew clean build
+    $ ./gradlew clean build
 
 Installing to the local Maven repository proceeds thusly
 
-    ./gradlew --info clean install
+    $ ./gradlew publishToMavenLocal
     ...
-    [INFO] Installing /Users/petrovic/Projects/feathercon/build/libs/feathercon-1.0.jar to /Users/petrovic/.m2/repository/com/xoom/feathercon/1.0/feathercon-1.0.jar
+    :publishMavenJavaPublicationToMavenLocal
+    Uploading: com/xoom/oss/feathercon/1.2.1/feathercon-1.2.1.jar to repository remote at file:/Users/petrovic/.m2/repository/
+    Transferring 11K from remote
+    Uploaded 11K
+    Uploading: com/xoom/oss/feathercon/1.2.1/feathercon-1.2.1-source.jar to repository remote at file:/Users/petrovic/.m2/repository/
 
 ### Maven coordinates
 
@@ -64,6 +68,6 @@ with this dependency
             <dependency>
                 <groupId>com.xoom.oss</groupId>
                 <artifactId>feathercon</artifactId>
-                <version>1.2</version>  <!-- or latest in the repository above -->
+                <version>1.2.1</version>  <!-- or latest in the repository above -->
             </dependency>
         </dependencies>

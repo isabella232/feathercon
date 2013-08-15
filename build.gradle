@@ -89,8 +89,6 @@ publishing {
         maven {
             url "https://api.bintray.com/maven/xoom/xoomoss/feathercon"
             credentials {
-                println "user: <${bintray.user}>"
-                println "apikey: <${bintray.apikey}>"
                 username = bintray.user
                 password = bintray.apikey
             }
