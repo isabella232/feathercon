@@ -4,7 +4,10 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'maven'
 
-apply from: file(new File(new File(System.getProperty("user.home"), ".gradle"), "bintray.gradle").getAbsolutePath())
+def btCredentialFile = new File(new File(System.getProperty("user.home"), ".gradle"), "bintray.gradle")
+if( btCredentialFile.exists() ) {
+   apply from: file(btCredentialFile.getAbsolutePath())
+}
 if (!hasProperty("bintray")) {
     ext.bintray = [user: "", apikey: ""]
 }
