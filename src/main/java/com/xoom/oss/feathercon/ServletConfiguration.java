@@ -114,4 +114,15 @@ public class ServletConfiguration {
         }
     }
 
+    @Override
+    public String toString() {
+        return "ServletConfiguration{" +
+                "servletHolder=" + servletHolder +
+                ", servletClass=" + servletClass +
+                ", pathSpec='" + pathSpec + '\'' +
+                ", servletName='" + servletName + '\'' +
+                ", initOrder=" + initOrder +
+                ", initParameters=" + initParameters +
+                '}';
+    }
 }

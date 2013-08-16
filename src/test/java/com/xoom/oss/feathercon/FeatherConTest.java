@@ -61,7 +61,8 @@ public class FeatherConTest {
     public void testJerseyBuilderListenerNotFound() {
         FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
                 .withPort(8888).withContextName("rest").withServletContextAttribute("a", "b")
-                .withServletContextListener("com.xoom.oss.feathercon.What");
+                .withServletContextListener("com.xoom.oss.feathercon.What")
+                .withServletContextListener(servletContextListener);
         FeatherCon build = rest.build();
         assertThat(build.contextName, equalTo("rest"));
         assertThat(build.servletContextAttributes.isEmpty(), equalTo(false));
@@ -149,6 +150,7 @@ public class FeatherConTest {
 
         FeatherCon server = featherConBuilder.withServletConfiguration(servletConfig)
                 .withServletContextListener(servletContextListener)
+                .withServletContextListener("com.xoom.oss.feathercon.ContextListener")
                 .withFilter(AppFilter.class, "/foo*", dispatcherTypes)
                 .build();
         assertThat(server, is(notNullValue()));

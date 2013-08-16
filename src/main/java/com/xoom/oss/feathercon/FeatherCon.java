@@ -51,15 +51,24 @@ public class FeatherCon {
 
     public static class FeatherConBuilder {
         private final Logger logger = LoggerFactory.getLogger(FeatherConBuilder.class);
-        private Integer port = DEFAULT_PORT;
-        private String contextName = "/";
-
-        private Map<String, Object> servletContextAttributes = new HashMap<String, Object>();
-        private List<EventListener> servletContextListeners = new LinkedList<EventListener>();
-        private List<FilterWrapper> filters = new LinkedList<FilterWrapper>();
-        private List<ServletConfiguration> servletConfigurations = new LinkedList<ServletConfiguration>();
+        protected Integer port = DEFAULT_PORT;
+        protected String contextName = "/";
+        protected Map<String, Object> servletContextAttributes = new HashMap<String, Object>();
+        protected List<EventListener> servletContextListeners = new LinkedList<EventListener>();
+        protected List<FilterWrapper> filters = new LinkedList<FilterWrapper>();
+        protected List<ServletConfiguration> servletConfigurations = new LinkedList<ServletConfiguration>();
 
         private Boolean built = false;
+
+        protected FeatherConBuilder bindAll(FeatherConBuilder builder) {
+            this.port = builder.port;
+            this.contextName = builder.contextName;
+            this.servletContextAttributes = builder.servletContextAttributes;
+            this.servletContextListeners = builder.servletContextListeners;
+            this.filters = builder.filters;
+            this.servletConfigurations = builder.servletConfigurations;
+            return this;
+        }
 
         public FeatherConBuilder withPort(Integer port) {
             this.port = port;
@@ -163,10 +172,17 @@ public class FeatherCon {
                     ", servletContextAttributes=" + servletContextAttributes +
                     ", servletContextListeners=" + servletContextListeners +
                     ", filters=" + filters +
-                    ", servletConfigurations=" + servletConfigurations +
-                    ", built=" + built +
-                    '}';
+                    ", servletConfigurations=" + servletConfigurations + '}';
         }
     }
 
+    @Override
+    public String toString() {
+        return "FeatherCon{" +
+                "port=" + port +
+                ", contextName='" + contextName + '\'' +
+                ", servletContextAttributes=" + servletContextAttributes +
+                ", server=" + server +
+                '}';
+    }
 }
