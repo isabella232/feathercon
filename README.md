@@ -5,7 +5,7 @@ FeatherCon lightweight servlet container
 
 FeatherCon(tainer) is a lightweight servlet container built around embedded Jetty.  The first use case for which FeatherCon
 was designed was to host small production or tool servers for JAX-RS Jersey-based REST services.  Here's how to set
-up a Jersey server, which is taken from one of the unit tests:
+up a JAX-RS server, which is taken from one of the unit tests:
 
     String scanPackages = "com.xoom.oss.feathercon";
     FeatherCon server = new JerseyServerBuilder(scanPackages).build();
@@ -24,12 +24,19 @@ Here's how to setup a servlet that serves static content:
     FeatherCon server = serverBuilder.build();
     server.start();
 
-The FeatherCon builder com.xoom.feathercon.FeatherCon.FeatherConBuilder can be used to host a set of arbitrary servlets
-with the appropriate configs exercised through the various builder withXXX methods.  For example, one might host a
-RESTful web service in the same FeatherCon instance as the DefaultServlet, the latter of which hosts static content.
-See the unit test for an example:  com.xoom.oss.feathercon.FeatherConTest#testJerseyServerWithStaticContent.
+A JAX-RS servlet combined with a static content servlet can be produced using the WebappServerBuilder:
 
-FeatherCon is also useful in unit tests, where one needs to quickly spin up a fast backend on a per-test basis.
+    String resourceBase = "/tmp";  // path to static content
+    String restPathSpec = "/api/*";
+    int serverPort = 8888;
+    String jerseyScanPackages = "com.xoom.oss.feathercon";
+    WebappServerBuilder webappServerBuilder = new WebappServerBuilder(jerseyScanPackages, restPathSpec, resourceBase, serverPort);
+    FeatherCon server = webappServerBuilder.build();
+    server.start();
+
+So a FeatherConBuilder can be used to host a set of arbitrary servlets with the appropriate configs exercised
+through the various builder withXXX methods. FeatherCon is also useful in unit tests, where one needs to quickly spin
+up a fast backend on a per-test basis.
 
 ### Building
 
