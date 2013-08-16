@@ -7,7 +7,9 @@ import org.jetbrains.annotations.NotNull;
  * A builder that produces a JAX-RS Jersey RESTful server with static content hosting in one container.
  */
 public class WebappServerBuilder extends FeatherCon.FeatherConBuilder {
-    /** Builder to host JAX-RS webapp with static content in one server.
+    /**
+     * Builder to host JAX-RS webapp with static content in one server.
+     *
      * @param jerseyScanPackages Semicolon-separated list of packages to scan for JAX-RS resources.
      * @param restPathSpec       The path to the RESTful endpoints, e.g., http://server:port/[restPathSpec]/[some-resource]
      * @param resourceBase       The path to the static content, such as CSS and Javascript files, reachable at

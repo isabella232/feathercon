@@ -24,6 +24,10 @@ Here's how to setup a servlet that serves static content:
     FeatherCon server = serverBuilder.build();
     server.start();
 
+Note that Jersey, the JAX-RS reference implementation, is not a formal dependency of FeatherCon and will therefore not appear
+in the FeatherCon published POM.  If you want to use the JAX-RS JerseyServerBuilder your app must explicitly depend on
+a Jersey implementation.
+
 A JAX-RS servlet combined with a static content servlet can be produced using the WebappServerBuilder:
 
     String resourceBase = "/tmp";  // path to static content
