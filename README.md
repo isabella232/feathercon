@@ -75,6 +75,6 @@ with this dependency
             <dependency>
                 <groupId>com.xoom.oss</groupId>
                 <artifactId>feathercon</artifactId>
-                <version>1.2.1</version>  <!-- or latest in the repository above -->
+                <version>1.2.2</version>  <!-- or latest in the repository above -->
             </dependency>
         </dependencies>
