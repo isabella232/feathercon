@@ -13,7 +13,7 @@ if (!hasProperty("bintray")) {
 }
 
 group = "com.xoom.oss"
-version = "1.2.2"
+version = "1.2.3"
 
 buildscript {
     repositories {
@@ -80,7 +80,7 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             artifact sourceJar {
-                classifier "source"
+                classifier "sources"
             }
         }
     }
