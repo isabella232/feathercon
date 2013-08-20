@@ -70,6 +70,18 @@ public class FeatherConTest {
         assertThat(build.servletContextAttributes.get("a"), equalTo((Object) "b"));
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testSpecifiedServletClassListenerIsAbstract() {
+        FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
+                .withServletContextListener("com.xoom.oss.feathercon.AbstractListener");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testSpecifiedServletClassListenerIsNotAccessible() {
+        FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
+                .withServletContextListener("com.xoom.oss.feathercon.otherpkg.AccessIssuesListener");
+    }
+
     @Test
     public void testJerseyBuilder() {
         FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
@@ -227,6 +239,24 @@ public class FeatherConTest {
     public void testServletClassNotFound() {
         servletConfigBuilder.withServletClassName("com.example.NoSuchServlet");
     }
+
+    @Test
+    public void testNullPort() {
+        ServletConfiguration servletConfiguration = servletConfigBuilder.build();
+        assertThat(servletConfiguration.servletClass.equals(DefaultServlet.class), equalTo(true));
+
+        FeatherCon server = featherConBuilder.withServletConfiguration(servletConfiguration).withPort(null).build();
+        assertThat(server, is(notNullValue()));
+        assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
+    }
+
+    @Test
+    public void testNullInitOrder() {
+        ServletConfiguration servletConfiguration = servletConfigBuilder.withInitOrder(null).build();
+        assertThat(servletConfiguration.servletClass.equals(DefaultServlet.class), equalTo(true));
+        assertThat(servletConfiguration.initOrder, is(nullValue()));
+    }
+
 
     private void assertServerUp(int port) {
         try {
