@@ -57,6 +57,7 @@ public class FeatherCon {
         protected List<EventListener> servletContextListeners = new LinkedList<EventListener>();
         protected List<FilterWrapper> filters = new LinkedList<FilterWrapper>();
         protected List<ServletConfiguration> servletConfigurations = new LinkedList<ServletConfiguration>();
+        protected Map<String, String> initParameters = new HashMap<String, String>();
 
         private Boolean built = false;
 
@@ -82,6 +83,11 @@ public class FeatherCon {
 
         public FeatherConBuilder withServletContextListener(EventListener servletContextListener) {
             servletContextListeners.add(servletContextListener);
+            return this;
+        }
+
+        public FeatherConBuilder withInitParameter(String key, String value) {
+            initParameters.put(key, value);
             return this;
         }
 
@@ -136,6 +142,9 @@ public class FeatherCon {
             handlers.setHandlers(new Handler[]{contextHandler});
             server.setHandler(handlers);
 
+            for (String key : initParameters.keySet()) {
+                contextHandler.setInitParameter(key, initParameters.get(key));
+            }
             for (String key : servletContextAttributes.keySet()) {
                 contextHandler.getServletContext().setAttribute(key, servletContextAttributes.get(key));
             }
