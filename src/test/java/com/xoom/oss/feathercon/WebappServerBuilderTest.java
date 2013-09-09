@@ -23,12 +23,12 @@ public class WebappServerBuilderTest {
         assertThat(jaxRsConfig.servletClass.equals(ServletContainer.class), equalTo(true));
         assertThat(jaxRsConfig.initParameters.get("com.sun.jersey.config.property.packages"), equalTo(jerseyScanPackages));
         assertThat(jaxRsConfig.initParameters.get("com.sun.jersey.api.json.POJOMappingFeature"), equalTo("true"));
-        assertThat(jaxRsConfig.pathSpec, equalTo(restPathSpec));
+        assertThat(jaxRsConfig.pathSpecs.get(0), equalTo(restPathSpec));
 
         ServletConfiguration staticConfig = webappServerBuilder.servletConfigurations.get(1);
         assertThat(staticConfig.servletClass.equals(DefaultServlet.class), equalTo(true));
         assertThat(staticConfig.initParameters.get("resourceBase"), equalTo(resourceBase));
-        assertThat(staticConfig.pathSpec, equalTo("/"));
+        assertThat(staticConfig.pathSpecs.get(0), equalTo("/"));
 
         FeatherCon server = webappServerBuilder.build();
         assertThat(server.port, equalTo(serverPort));

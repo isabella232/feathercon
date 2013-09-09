@@ -7,25 +7,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.Servlet;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ServletConfiguration {
     public final ServletHolder servletHolder;
     public final Class<? extends Servlet> servletClass;
-    public final String pathSpec;
+    public final List<String> pathSpecs;
     public final String servletName;
     public final Integer initOrder;
     public Map<String, String> initParameters = new HashMap<String, String>();
 
-    private ServletConfiguration(ServletHolder servletHolder, Class<? extends Servlet> servletClass, String pathSpec, String servletName, Integer initOrder, Map<String, String> initParameters) {
+    private ServletConfiguration(ServletHolder servletHolder, Class<? extends Servlet> servletClass, List<String> pathSpecs, String servletName, Integer initOrder, Map<String, String> initParameters) {
         this.servletHolder = servletHolder;
         this.servletClass = servletClass;
-        this.pathSpec = pathSpec;
         this.servletName = servletName;
         this.initOrder = initOrder;
         this.initParameters = Collections.unmodifiableMap(initParameters);
+        this.pathSpecs = pathSpecs;
+        if (pathSpecs.isEmpty()) {
+            this.pathSpecs.add("/*");
+        }
     }
 
     public static class ServletConfigurationBuilder {
@@ -33,7 +38,7 @@ public class ServletConfiguration {
         private Class<? extends Servlet> servletClass;
         private Integer initOrder = 1;
         private String servletName;
-        private String pathSpec = "/*";
+        private List<String> pathSpecs = new ArrayList<String>();
         private Map<String, String> initParameters = new HashMap<String, String>();
         private Boolean built = false;
 
@@ -62,7 +67,7 @@ public class ServletConfiguration {
         }
 
         public ServletConfigurationBuilder withPathSpec(@NotNull String pathSpec) {
-            this.pathSpec = pathSpec;
+            pathSpecs.add(pathSpec);
             return this;
         }
 
@@ -95,7 +100,7 @@ public class ServletConfiguration {
             }
             servletHolder.setInitParameters(initParameters);
 
-            ServletConfiguration servletConfiguration = new ServletConfiguration(servletHolder, servletClass, pathSpec, servletName, initOrder, initParameters);
+            ServletConfiguration servletConfiguration = new ServletConfiguration(servletHolder, servletClass, pathSpecs, servletName, initOrder, initParameters);
             built = true;
             logger.info("Built {}", this);
             return servletConfiguration;
@@ -107,7 +112,7 @@ public class ServletConfiguration {
                     "servletClass=" + servletClass +
                     ", initOrder=" + initOrder +
                     ", servletName='" + servletName + '\'' +
-                    ", pathSpec='" + pathSpec + '\'' +
+                    ", pathSpecs='" + pathSpecs + '\'' +
                     ", initParameters=" + initParameters +
                     ", built=" + built +
                     '}';
@@ -119,7 +124,7 @@ public class ServletConfiguration {
         return "ServletConfiguration{" +
                 "servletHolder=" + servletHolder +
                 ", servletClass=" + servletClass +
-                ", pathSpec='" + pathSpec + '\'' +
+                ", pathSpecs='" + pathSpecs + '\'' +
                 ", servletName='" + servletName + '\'' +
                 ", initOrder=" + initOrder +
                 ", initParameters=" + initParameters +

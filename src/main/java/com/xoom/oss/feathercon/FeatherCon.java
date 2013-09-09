@@ -13,11 +13,9 @@ import java.net.InetSocketAddress;
 import java.util.EnumSet;
 import java.util.EventListener;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class FeatherCon {
     public static final Integer DEFAULT_PORT = 8080;
@@ -105,8 +103,8 @@ public class FeatherCon {
             return this;
         }
 
-        public FeatherConBuilder withFilter(Class<? extends Filter> filterClass, String pathSpec, EnumSet<DispatcherType> dispatches) {
-            filters.add(new FilterWrapper(filterClass, pathSpec, dispatches));
+        public FeatherConBuilder withFilter(Class<? extends Filter> filterClass, List<String> pathSpecs, EnumSet<DispatcherType> dispatches) {
+            filters.add(new FilterWrapper(filterClass, pathSpecs, dispatches));
             return this;
         }
 
@@ -129,14 +127,10 @@ public class FeatherCon {
             Server server = new Server(new InetSocketAddress("0.0.0.0", port));
 
             ServletContextHandler contextHandler = new ServletContextHandler(server, contextName);
-            Set<String> pathSpecFilter = new HashSet<String>();
             for (ServletConfiguration servletConfiguration : servletConfigurations) {
-                String p = servletConfiguration.pathSpec;
-                boolean wasNotAlreadyPresent = pathSpecFilter.add(p);
-                if (!wasNotAlreadyPresent) {
-                    throw new IllegalStateException(String.format("Another ServletConfiguration is already using this pathSpec %s", p));
+                for (String s : servletConfiguration.pathSpecs) {
+                    contextHandler.addServlet(servletConfiguration.servletHolder, s);
                 }
-                contextHandler.addServlet(servletConfiguration.servletHolder, p);
             }
             HandlerList handlers = new HandlerList();
             handlers.setHandlers(new Handler[]{contextHandler});
@@ -152,7 +146,9 @@ public class FeatherCon {
                 contextHandler.addEventListener(eventListener);
             }
             for (FilterWrapper filterBuffer : filters) {
-                contextHandler.addFilter(filterBuffer.filterClass, filterBuffer.pathSpec, filterBuffer.dispatches);
+                for (String pathSpec : filterBuffer.pathSpec) {
+                    contextHandler.addFilter(filterBuffer.filterClass, pathSpec, filterBuffer.dispatches);
+                }
             }
 
             FeatherCon featherCon = new FeatherCon(server, port, contextName, servletContextAttributes);
@@ -163,10 +159,10 @@ public class FeatherCon {
 
         class FilterWrapper {
             public final Class<? extends Filter> filterClass;
-            public final String pathSpec;
+            public final List<String> pathSpec;
             public final EnumSet<DispatcherType> dispatches;
 
-            public FilterWrapper(Class<? extends Filter> filterClass, String pathSpec, EnumSet<DispatcherType> dispatches) {
+            public FilterWrapper(Class<? extends Filter> filterClass, List<String> pathSpec, EnumSet<DispatcherType> dispatches) {
                 this.filterClass = filterClass;
                 this.pathSpec = pathSpec;
                 this.dispatches = dispatches;
