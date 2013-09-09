@@ -115,4 +115,29 @@ public class ServletConfigurationTest {
         assertThat(build.initParameters.containsKey("k1"), equalTo(true));
         assertThat(build.initParameters.get("k1"), equalTo("v1"));
     }
+
+    @Test
+    public void testToString() throws Exception {
+        builder.toString();
+        builder.build().toString();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWithServletClassNameNotFound() throws Exception {
+        builder.withServletClassName("acme.NoSuchServletClass");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testBuildTwice() throws Exception {
+        builder.build();
+        builder.build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNotAServletClass() throws Exception {
+        builder.withServletClassName("com.xoom.oss.feathercon.ServletConfigurationTest.Foo");
+    }
+
+    private static class Foo {
+    }
 }

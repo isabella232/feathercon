@@ -134,13 +134,35 @@ public class FeatherConTest {
         String contextAttributeKey = "key";
         builder.withServletContextAttribute(contextAttributeKey, contextObject);
 
+        builder.withInitParameter("k1", "v1");
+
+        builder.withServletContextListener(new ContextListener());
+        builder.withServletContextListener("com.xoom.oss.feathercon.ContextListener");
+
+        List<String> filterAPaths = new ArrayList<String>();
+        filterAPaths.add("/apiv1/*");
+        filterAPaths.add("/apiv2/*");
+        EnumSet<DispatcherType> dispatcherTypes = EnumSet.allOf(DispatcherType.class);
+        builder.withFilter(FilterA.class, filterAPaths, dispatcherTypes);
+
         FeatherCon build = builder.build();
         assertThat(build.contextName, equalTo(contextName));
         assertThat(build.port, equalTo(8080));
         assertThat(build.servletContextAttributes, is(notNullValue()));
         assertThat(build.servletContextAttributes.containsKey(contextAttributeKey), equalTo(true));
         assertThat(build.servletContextAttributes.get(contextAttributeKey), equalTo(contextObject));
+    }
 
+    @Test
+    public void testToString() throws Exception {
+        builder.toString();
+        builder.build().toString();
 
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testBuiltTwice() throws Exception {
+        builder.build();
+        builder.build();
     }
 }
