@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 public class ServletConfiguration {
+    private final Logger logger = LoggerFactory.getLogger(ServletConfiguration.class);
     public final ServletHolder servletHolder;
     public final Class<? extends Servlet> servletClass;
-    public final List<String> pathSpecs;
     public final String servletName;
     public final Integer initOrder;
-    public Map<String, String> initParameters = new HashMap<String, String>();
+    public final List<String> pathSpecs;
+    public final Map<String, String> initParameters;
 
     private ServletConfiguration(ServletHolder servletHolder, Class<? extends Servlet> servletClass, List<String> pathSpecs, String servletName, Integer initOrder, Map<String, String> initParameters) {
         this.servletHolder = servletHolder;
@@ -27,20 +28,20 @@ public class ServletConfiguration {
         this.servletName = servletName;
         this.initOrder = initOrder;
         this.initParameters = Collections.unmodifiableMap(initParameters);
-        this.pathSpecs = pathSpecs;
+        this.pathSpecs = Collections.unmodifiableList(pathSpecs);
         if (pathSpecs.isEmpty()) {
-            this.pathSpecs.add("/*");
+            logger.warn("Servlet {}:{} has not path specs.  Nothing will route here.", servletClass, servletName);
         }
     }
 
     public static class ServletConfigurationBuilder {
         private final Logger logger = LoggerFactory.getLogger(ServletConfigurationBuilder.class);
-        private Class<? extends Servlet> servletClass;
-        private Integer initOrder = 1;
-        private String servletName;
-        private List<String> pathSpecs = new ArrayList<String>();
-        private Map<String, String> initParameters = new HashMap<String, String>();
-        private Boolean built = false;
+        Class<? extends Servlet> servletClass;
+        Integer initOrder = 1;
+        String servletName;
+        List<String> pathSpecs = new ArrayList<String>();
+        Map<String, String> initParameters = new HashMap<String, String>();
+        Boolean built = false;
 
         public ServletConfigurationBuilder withServletClass(@NotNull Class<? extends Servlet> servletClass) {
             this.servletClass = servletClass;
@@ -77,7 +78,7 @@ public class ServletConfiguration {
         }
 
         public ServletConfigurationBuilder withInitParameters(Map<String, String> initParameters) {
-            this.initParameters = initParameters;
+            this.initParameters.putAll(initParameters);
             return this;
         }
 
@@ -117,6 +118,34 @@ public class ServletConfiguration {
                     ", built=" + built +
                     '}';
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServletConfiguration that = (ServletConfiguration) o;
+
+        if (!initOrder.equals(that.initOrder)) return false;
+        if (!initParameters.equals(that.initParameters)) return false;
+        if (!pathSpecs.equals(that.pathSpecs)) return false;
+        if (!servletClass.equals(that.servletClass)) return false;
+        if (!servletHolder.equals(that.servletHolder)) return false;
+        if (!servletName.equals(that.servletName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = servletHolder.hashCode();
+        result = 31 * result + servletClass.hashCode();
+        result = 31 * result + servletName.hashCode();
+        result = 31 * result + initOrder.hashCode();
+        result = 31 * result + pathSpecs.hashCode();
+        result = 31 * result + initParameters.hashCode();
+        return result;
     }
 
     @Override

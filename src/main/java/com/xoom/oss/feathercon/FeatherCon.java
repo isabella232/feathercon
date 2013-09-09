@@ -157,18 +157,6 @@ public class FeatherCon {
             return featherCon;
         }
 
-        class FilterWrapper {
-            public final Class<? extends Filter> filterClass;
-            public final List<String> pathSpec;
-            public final EnumSet<DispatcherType> dispatches;
-
-            public FilterWrapper(Class<? extends Filter> filterClass, List<String> pathSpec, EnumSet<DispatcherType> dispatches) {
-                this.filterClass = filterClass;
-                this.pathSpec = pathSpec;
-                this.dispatches = dispatches;
-            }
-        }
-
         @Override
         public String toString() {
             return "FeatherConBuilder{" +
@@ -190,4 +178,5 @@ public class FeatherCon {
                 ", server=" + server +
                 '}';
     }
+
 }

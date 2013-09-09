@@ -1,295 +1,146 @@
 package com.xoom.oss.feathercon;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.json.JSONConfiguration;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.fail;
 
 public class FeatherConTest {
-
-    private ServletContextListener servletContextListener = new ContextListener();
-
-    private EnumSet<DispatcherType> dispatcherTypes = EnumSet.of(DispatcherType.ERROR);
-    private FeatherCon.FeatherConBuilder featherConBuilder;
-    private ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder;
-
-    @BeforeClass
-    public static void setupClass() {
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-    }
+    FeatherCon.FeatherConBuilder builder;
 
     @Before
-    public void beforeMethod() {
-        featherConBuilder = new FeatherCon.FeatherConBuilder();
-        servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+    public void setUp() throws Exception {
+        builder = new FeatherCon.FeatherConBuilder();
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testJerseyBuilderListenerNotFound() {
-        FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
-                .withPort(8888).withContextName("rest").withServletContextAttribute("a", "b")
-                .withServletContextListener("com.xoom.oss.feathercon.What")
-                .withServletContextListener(servletContextListener);
-        FeatherCon build = rest.build();
-        assertThat(build.contextName, equalTo("rest"));
-        assertThat(build.servletContextAttributes.isEmpty(), equalTo(false));
-        assertThat(build.servletContextAttributes.containsKey("a"), equalTo(true));
-        assertThat(build.servletContextAttributes.get("a"), equalTo((Object) "b"));
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testSpecifiedServletClassListenerIsAbstract() {
-        FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
-                .withServletContextListener("com.xoom.oss.feathercon.AbstractListener");
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testSpecifiedServletClassListenerIsNotAccessible() {
-        FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
-                .withServletContextListener("com.xoom.oss.feathercon.otherpkg.AccessIssuesListener");
+    @After
+    public void tearDown() throws Exception {
     }
 
     @Test
-    public void testJerseyBuilder() {
-        FeatherCon.FeatherConBuilder rest = new JerseyServerBuilder("com.xoom.scanpkgs")
-                .withPort(8888).withContextName("rest").withServletContextAttribute("a", "b")
-                .withServletContextListener("com.xoom.oss.feathercon.ContextListener");
-        rest.toString();
-        FeatherCon build = rest.build();
-        assertThat(build.port, equalTo(8888));
-        assertThat(build.contextName, equalTo("rest"));
-        assertThat(build.servletContextAttributes.isEmpty(), equalTo(false));
+    public void testWithPort() throws Exception {
+        int port = 8080;
+        builder.withPort(port);
+        assertThat(builder.port, equalTo(port));
     }
 
     @Test
-    public void testJerseyServerWithStaticContent() throws Exception {
-        String scanPackages = "com.xoom.oss.feathercon";
-        String jerseyPathSpec = "api";
-        ServletConfiguration.ServletConfigurationBuilder jerseyBuilder = new ServletConfiguration.ServletConfigurationBuilder();
-        jerseyBuilder.withServletClassName("com.sun.jersey.spi.container.servlet.ServletContainer")
-                .withServletName("REST Server")
-                .withPathSpec(String.format("/%s/*", jerseyPathSpec))
+    public void testWithServletContextAttribute() throws Exception {
+        assertThat(builder.servletContextAttributes, is(notNullValue()));
+        Object object = new Object();
+        String key = "k1";
+        builder.withServletContextAttribute(key, object);
+        assertThat(builder.servletContextAttributes.containsKey(key), equalTo(true));
+        assertThat(builder.servletContextAttributes.get(key), equalTo(object));
+    }
+
+    @Test
+    public void testWithServletContextListener() throws Exception {
+        assertThat(builder.servletContextListeners, is(notNullValue()));
+        assertThat(builder.servletContextListeners.size(), equalTo(0));
+
+        ContextListener servletContextListener = new ContextListener();
+        builder.withServletContextListener(servletContextListener);
+        assertThat(builder.servletContextListeners.contains(servletContextListener), equalTo(true));
+        assertThat(builder.servletContextListeners.size(), equalTo(1));
+    }
+
+    @Test
+    public void testWithInitParameter() throws Exception {
+        String key = "k1";
+        String value = "v1";
+
+        assertThat(builder.initParameters, is(notNullValue()));
+        builder.withInitParameter(key, value);
+        assertThat(builder.initParameters.size(), equalTo(1));
+        assertThat(builder.initParameters.containsKey(key), equalTo(true));
+        assertThat(builder.initParameters.get(key), equalTo(value));
+    }
+
+    @Test
+    public void testWithFilter() throws Exception {
+        List<String> filterAPaths = new ArrayList<String>();
+        filterAPaths.add("/css/*");
+        filterAPaths.add("/js/*");
+
+        List<String> filterBPaths = new ArrayList<String>();
+        filterAPaths.add("/apiv1/*");
+        filterAPaths.add("/apiv2/*");
+
+        EnumSet<DispatcherType> dispatcherTypes = EnumSet.allOf(DispatcherType.class);
+        builder.withFilter(FilterA.class, filterAPaths, dispatcherTypes);
+        builder.withFilter(FilterB.class, filterBPaths, dispatcherTypes);
+
+        assertThat(builder.filters.contains(new FilterWrapper(FilterA.class, filterAPaths, dispatcherTypes)), equalTo(true));
+        assertThat(builder.filters.contains(new FilterWrapper(FilterB.class, filterBPaths, dispatcherTypes)), equalTo(true));
+    }
+
+    @Test
+    public void testWithServletConfiguration() throws Exception {
+        assertThat(builder.servletConfigurations, is(notNullValue()));
+        assertThat(builder.servletConfigurations.size(), equalTo(0));
+
+        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        servletConfigBuilder.withServletClass(DefaultServlet.class)
+                .withServletName("superServlet")
                 .withInitOrder(1)
-                .withInitParameter("com.sun.jersey.config.property.packages", scanPackages)
-                .withInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
-
-        String resourcePath = getClass().getResource("/content-root/anchor").getFile();
-        String resourceBase = new File(resourcePath).getParentFile().getAbsolutePath() + "/static/";
-        ServletConfiguration.ServletConfigurationBuilder staticContentBuilder = new ServletConfiguration.ServletConfigurationBuilder();
-        staticContentBuilder
-                .withServletClass(DefaultServlet.class)
-                .withPathSpec("/")
-                .withInitParameter("resourceBase", resourceBase);
-        staticContentBuilder.toString();
-        FeatherCon.FeatherConBuilder serverBuilder = new FeatherCon.FeatherConBuilder();
-        serverBuilder.withServletConfiguration(jerseyBuilder.build()).withServletConfiguration(staticContentBuilder.build());
-
-        FeatherCon server = serverBuilder.build();
-        server.start();
-
-        // consume resources and compare
-        ClientConfig clientConfig = new DefaultClientConfig();
-        clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-        Client client = Client.create(clientConfig);
-        WebResource resource = client.resource(String.format("http://localhost:8080/%s/users", jerseyPathSpec));
-        User user = resource.accept(MediaType.APPLICATION_JSON_TYPE).get(User.class);
-        assertThat(user.name, equalTo("Bob Loblaw"));
-        assertThat(user.emailAddress, equalTo("bob@lawbomb.example.com"));
-
-        resource = client.resource("http://localhost:8080/hello.html");
-        ClientResponse clientResponse = resource.get(ClientResponse.class);
-        String html = clientResponse.getEntity(String.class);
-        FileReader fileReader = new FileReader(String.format("%s/hello.html", resourceBase));
-        BufferedReader br = new BufferedReader(fileReader);
-        String s;
-        StringBuilder sb = new StringBuilder();
-        while ((s = br.readLine()) != null) {
-            sb.append(s).append('\n');
-        }
-        assertThat(html, equalTo(sb.toString()));
-
-        server.stop();
-    }
-
-    @Test
-    public void testWithStringServletClassName() throws Exception {
-        Map<String, String> initParams = new HashMap<String, String>();
-        initParams.put("key", "value");
-        ServletConfiguration servletConfig = servletConfigBuilder.withServletClassName("org.eclipse.jetty.servlet.DefaultServlet")
-                .withInitParameters(initParams)
-                .build();
-        servletConfig.toString();
-        assertThat(servletConfig.servletClass.equals(DefaultServlet.class), equalTo(true));
-        assertThat(servletConfig.pathSpecs.contains("/*"), equalTo(true));
-        assertThat(servletConfig.initOrder, equalTo(1));
-        assertThat(servletConfig.servletName, is(nullValue()));
-        assertThat(servletConfig.initParameters.isEmpty(), equalTo(false));
-        assertThat(servletConfig.initParameters.containsKey("key"), equalTo(true));
-        assertThat(servletConfig.initParameters.get("key"), equalTo("value"));
-
-        List<String> filterPathSpecs = new ArrayList<String>();
-        filterPathSpecs.add("/foo*");
-        FeatherCon server = featherConBuilder.withServletConfiguration(servletConfig)
-                .withServletContextListener(servletContextListener)
-                .withServletContextListener("com.xoom.oss.feathercon.ContextListener")
-                .withFilter(AppFilter.class, filterPathSpecs, dispatcherTypes)
-                .build();
-        assertThat(server, is(notNullValue()));
-        assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
-        server.start();
-        assertThat(server.isRunning(), equalTo(true));
-        assertServerUp(FeatherCon.DEFAULT_PORT);
-        server.stop();
-    }
-
-    @Test
-    public void testWithServletClass() throws Exception {
-        ServletConfiguration servletConfig = servletConfigBuilder.withServletClass(DefaultServlet.class)
-                .withServletName("fooServlet")
-                .withInitParameter("key", "value")
-                .build();
-        assertThat(servletConfig.servletName, equalTo("fooServlet"));
-        assertThat(servletConfig.initParameters.isEmpty(), equalTo(false));
-        assertThat(servletConfig.initParameters.containsKey("key"), equalTo(true));
-        assertThat(servletConfig.initParameters.get("key"), equalTo("value"));
-        List<String> filterPathSpecs = new ArrayList<String>();
-        filterPathSpecs.add("/foo*");
-        FeatherCon server = featherConBuilder.withServletConfiguration(servletConfig)
-                .withServletContextListener(servletContextListener)
-                .withFilter(AppFilter.class, filterPathSpecs, dispatcherTypes)
-                .build();
-        assertThat(server, is(notNullValue()));
-        assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
-        server.start();
-        assertThat(server.isRunning(), equalTo(true));
-        assertServerUp(FeatherCon.DEFAULT_PORT);
-        server.stop();
-    }
-
-    @Test
-    public void testNoServletClassSpecified() throws Exception {
+                .withInitParameter("k1", "v1")
+                .withPathSpec("/css/*")
+                .withPathSpec("/js/*");
         ServletConfiguration servletConfiguration = servletConfigBuilder.build();
-        assertThat(servletConfiguration.servletClass.equals(DefaultServlet.class), equalTo(true));
-
-        FeatherCon server = featherConBuilder.withServletConfiguration(servletConfiguration).build();
-        assertThat(server, is(notNullValue()));
-        assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
-        server.start();
-        assertThat(server.isRunning(), equalTo(true));
-        assertServerUp(FeatherCon.DEFAULT_PORT);
-        server.stop();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testNotAServletClass() throws Exception {
-        servletConfigBuilder.withServletClassName("java.lang.Object").build();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testNeedNewServletBuilder() throws Exception {
-        servletConfigBuilder.build();
-        servletConfigBuilder.build();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testNeedNewServerBuilder() throws Exception {
-        featherConBuilder.build();
-        featherConBuilder.build();
-    }
-
-    //    @Test(expected = IllegalStateException.class)
-    public void testPathSpecCollision() {
-        new FeatherCon.FeatherConBuilder()
-                .withServletConfiguration(new ServletConfiguration.ServletConfigurationBuilder().withPathSpec("/*").build())
-                .withServletConfiguration(new ServletConfiguration.ServletConfigurationBuilder().withPathSpec("/*").build())
-                .build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testServletClassNotFound() {
-        servletConfigBuilder.withServletClassName("com.example.NoSuchServlet");
+        builder.withServletConfiguration(servletConfiguration);
+        assertThat(builder.servletConfigurations.size(), equalTo(1));
+        assertThat(builder.servletConfigurations.contains(servletConfiguration), equalTo(true));
     }
 
     @Test
-    public void testNullPort() {
+    public void testWithContextName() throws Exception {
+        String contextName = "mywebapp";
+        builder.withContextName(contextName);
+        assertThat(builder.contextName, equalTo(contextName));
+    }
+
+    @Test
+    public void testBuild() throws Exception {
+        assertThat(builder.servletConfigurations, is(notNullValue()));
+        assertThat(builder.servletConfigurations.size(), equalTo(0));
+
+        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        servletConfigBuilder.withServletClass(DefaultServlet.class)
+                .withServletName("superServlet")
+                .withInitOrder(1)
+                .withInitParameter("k1", "v1")
+                .withPathSpec("/css/*")
+                .withPathSpec("/js/*");
         ServletConfiguration servletConfiguration = servletConfigBuilder.build();
-        assertThat(servletConfiguration.servletClass.equals(DefaultServlet.class), equalTo(true));
+        builder.withServletConfiguration(servletConfiguration);
+        assertThat(builder.servletConfigurations.size(), equalTo(1));
+        assertThat(builder.servletConfigurations.contains(servletConfiguration), equalTo(true));
 
-        FeatherCon server = featherConBuilder.withServletConfiguration(servletConfiguration).withPort(null).build();
-        assertThat(server, is(notNullValue()));
-        assertThat(server.port, equalTo(FeatherCon.DEFAULT_PORT));
-    }
+        String contextName = "mywebapp";
+        builder.withContextName(contextName);
 
-    @Test
-    public void testNullInitOrder() {
-        ServletConfiguration servletConfiguration = servletConfigBuilder.withInitOrder(null).build();
-        assertThat(servletConfiguration.servletClass.equals(DefaultServlet.class), equalTo(true));
-        assertThat(servletConfiguration.initOrder, is(nullValue()));
-    }
+        Object contextObject = new Object();
+        String contextAttributeKey = "key";
+        builder.withServletContextAttribute(contextAttributeKey, contextObject);
+
+        FeatherCon build = builder.build();
+        assertThat(build.contextName, equalTo(contextName));
+        assertThat(build.port, equalTo(8080));
+        assertThat(build.servletContextAttributes, is(notNullValue()));
+        assertThat(build.servletContextAttributes.containsKey(contextAttributeKey), equalTo(true));
+        assertThat(build.servletContextAttributes.get(contextAttributeKey), equalTo(contextObject));
 
 
-    private void assertServerUp(int port) {
-        try {
-            Socket socket = new Socket("localhost", port);
-            closeQuietly(socket);
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    private void closeQuietly(Socket socket) {
-        try {
-            socket.close();
-        } catch (IOException e) {
-        }
-    }
-
-    public static class AppFilter implements Filter {
-        @Override
-        public void init(FilterConfig filterConfig) throws ServletException {
-        }
-
-        @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        }
-
-        @Override
-        public void destroy() {
-        }
     }
 }
