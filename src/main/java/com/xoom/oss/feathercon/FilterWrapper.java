@@ -1,40 +1,59 @@
 package com.xoom.oss.feathercon;
 
+import org.eclipse.jetty.servlet.FilterHolder;
+
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class FilterWrapper {
-    public final Class<? extends Filter> filterClass;
+    public final FilterHolder filterHolder;
     public final List<String> pathSpec;
     public final EnumSet<DispatcherType> dispatches;
 
-    public FilterWrapper(Class<? extends Filter> filterClass, List<String> pathSpec, EnumSet<DispatcherType> dispatches) {
-        this.filterClass = filterClass;
+    public FilterWrapper(FilterHolder filterHolder, List<String> pathSpec, EnumSet<DispatcherType> dispatches) {
         this.pathSpec = pathSpec;
         this.dispatches = dispatches;
+        this.filterHolder = filterHolder;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public static class FilterWrapperBuilder {
+        Map<String, String> initParams = new HashMap<String, String>();
+        List<String> pathSpecs = new ArrayList<String>();
 
-        FilterWrapper that = (FilterWrapper) o;
+        Class<? extends Filter> filterClass;
+        private EnumSet<DispatcherType> dispatcherTypeSet;
 
-        if (!dispatches.equals(that.dispatches)) return false;
-        if (!filterClass.equals(that.filterClass)) return false;
-        if (!pathSpec.equals(that.pathSpec)) return false;
+        public FilterWrapperBuilder withFilterClass(Class<? extends Filter> filterClass) {
+            this.filterClass = filterClass;
+            return this;
+        }
 
-        return true;
-    }
+        public FilterWrapperBuilder withInitParameter(String key, String value) {
+            initParams.put(key, value);
+            return this;
+        }
 
-    @Override
-    public int hashCode() {
-        int result = filterClass.hashCode();
-        result = 31 * result + pathSpec.hashCode();
-        result = 31 * result + dispatches.hashCode();
-        return result;
+        public FilterWrapperBuilder withPathSpec(String pathSpec) {
+            pathSpecs.add(pathSpec);
+            return this;
+        }
+
+        public FilterWrapperBuilder withDispatcherTypeSet(EnumSet<DispatcherType> dispatcherTypeSet) {
+            this.dispatcherTypeSet = dispatcherTypeSet;
+            return this;
+        }
+
+        FilterWrapper build() {
+            FilterHolder filterHolder = new FilterHolder(filterClass);
+            for (String key : initParams.keySet()) {
+                filterHolder.setInitParameter(key, initParams.get(key));
+            }
+            return new FilterWrapper(filterHolder, pathSpecs, dispatcherTypeSet);
+        }
     }
 }

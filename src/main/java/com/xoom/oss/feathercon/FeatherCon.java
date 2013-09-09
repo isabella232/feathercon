@@ -7,10 +7,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
 import java.net.InetSocketAddress;
-import java.util.EnumSet;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -103,8 +100,8 @@ public class FeatherCon {
             return this;
         }
 
-        public FeatherConBuilder withFilter(Class<? extends Filter> filterClass, List<String> pathSpecs, EnumSet<DispatcherType> dispatches) {
-            filters.add(new FilterWrapper(filterClass, pathSpecs, dispatches));
+        public FeatherConBuilder withFilter(FilterWrapper filterWrapper) {
+            filters.add(filterWrapper);
             return this;
         }
 
@@ -147,7 +144,7 @@ public class FeatherCon {
             }
             for (FilterWrapper filterBuffer : filters) {
                 for (String pathSpec : filterBuffer.pathSpec) {
-                    contextHandler.addFilter(filterBuffer.filterClass, pathSpec, filterBuffer.dispatches);
+                    contextHandler.addFilter(filterBuffer.filterHolder, pathSpec, filterBuffer.dispatches);
                 }
             }
 

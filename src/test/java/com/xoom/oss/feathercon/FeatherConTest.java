@@ -69,20 +69,28 @@ public class FeatherConTest {
 
     @Test
     public void testWithFilter() throws Exception {
-        List<String> filterAPaths = new ArrayList<String>();
-        filterAPaths.add("/css/*");
-        filterAPaths.add("/js/*");
-
-        List<String> filterBPaths = new ArrayList<String>();
-        filterAPaths.add("/apiv1/*");
-        filterAPaths.add("/apiv2/*");
-
         EnumSet<DispatcherType> dispatcherTypes = EnumSet.allOf(DispatcherType.class);
-        builder.withFilter(FilterA.class, filterAPaths, dispatcherTypes);
-        builder.withFilter(FilterB.class, filterBPaths, dispatcherTypes);
+        FilterWrapper.FilterWrapperBuilder filterBuilderA = new FilterWrapper.FilterWrapperBuilder();
 
-        assertThat(builder.filters.contains(new FilterWrapper(FilterA.class, filterAPaths, dispatcherTypes)), equalTo(true));
-        assertThat(builder.filters.contains(new FilterWrapper(FilterB.class, filterBPaths, dispatcherTypes)), equalTo(true));
+        filterBuilderA
+                .withFilterClass(FilterA.class)
+                .withPathSpec("/css/*")
+                .withPathSpec("/js/*")
+                .withDispatcherTypeSet(dispatcherTypes);
+        FilterWrapper filterWrapperA = filterBuilderA.build();
+        builder.withFilter(filterWrapperA);
+
+        FilterWrapper.FilterWrapperBuilder filterBuilderB = new FilterWrapper.FilterWrapperBuilder();
+        filterBuilderB
+                .withFilterClass(FilterB.class)
+                .withPathSpec("/apiv1/*")
+                .withPathSpec("/apiv2/*")
+                .withDispatcherTypeSet(dispatcherTypes);
+        FilterWrapper filterWrapperB = filterBuilderB.build();
+        builder.withFilter(filterWrapperB);
+
+        assertThat(builder.filters.contains(filterWrapperA), equalTo(true));
+        assertThat(builder.filters.contains(filterWrapperB), equalTo(true));
     }
 
     @Test
@@ -143,7 +151,9 @@ public class FeatherConTest {
         filterAPaths.add("/apiv1/*");
         filterAPaths.add("/apiv2/*");
         EnumSet<DispatcherType> dispatcherTypes = EnumSet.allOf(DispatcherType.class);
-        builder.withFilter(FilterA.class, filterAPaths, dispatcherTypes);
+        FilterWrapper.FilterWrapperBuilder filterWrapperBuilder = new FilterWrapper.FilterWrapperBuilder();
+        filterWrapperBuilder.withFilterClass(FilterA.class).withPathSpec("/apiv1/*").withPathSpec("/apiv2/*").withDispatcherTypeSet(dispatcherTypes);
+        builder.withFilter(filterWrapperBuilder.build());
 
         FeatherCon build = builder.build();
         assertThat(build.contextName, equalTo(contextName));
