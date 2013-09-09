@@ -128,8 +128,8 @@ public class FeatherCon {
 
             ServletContextHandler contextHandler = new ServletContextHandler(server, contextName);
             for (ServletConfiguration servletConfiguration : servletConfigurations) {
-                for (String s : servletConfiguration.pathSpecs) {
-                    contextHandler.addServlet(servletConfiguration.servletHolder, s);
+                for (String pathSpec : servletConfiguration.pathSpecs) {
+                    contextHandler.addServlet(servletConfiguration.servletHolder, pathSpec);
                 }
             }
             HandlerList handlers = new HandlerList();

@@ -30,7 +30,7 @@ public class ServletConfiguration {
         this.initParameters = Collections.unmodifiableMap(initParameters);
         this.pathSpecs = Collections.unmodifiableList(pathSpecs);
         if (pathSpecs.isEmpty()) {
-            logger.warn("Servlet {}:{} has not path specs.  Nothing will route here.", servletClass, servletName);
+            logger.warn("Servlet {}:{} has no path specs, therefore no query will route here.", servletClass, servletName == null ? "<no servlet name>" : servletName);
         }
     }
 
