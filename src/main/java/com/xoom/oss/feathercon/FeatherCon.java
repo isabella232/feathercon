@@ -44,8 +44,8 @@ public class FeatherCon {
         server.join();
     }
 
-    public static class FeatherConBuilder {
-        private final Logger logger = LoggerFactory.getLogger(FeatherConBuilder.class);
+    public static class Builder {
+        private final Logger logger = LoggerFactory.getLogger(Builder.class);
         protected Integer port = DEFAULT_PORT;
         protected String contextName = "/";
         protected Map<String, Object> servletContextAttributes = new HashMap<String, Object>();
@@ -56,7 +56,7 @@ public class FeatherCon {
 
         private Boolean built = false;
 
-        protected FeatherConBuilder bindAll(FeatherConBuilder builder) {
+        protected Builder bindAll(Builder builder) {
             this.port = builder.port;
             this.contextName = builder.contextName;
             this.servletContextAttributes = builder.servletContextAttributes;
@@ -66,27 +66,27 @@ public class FeatherCon {
             return this;
         }
 
-        public FeatherConBuilder withPort(Integer port) {
+        public Builder withPort(Integer port) {
             this.port = port;
             return this;
         }
 
-        public FeatherConBuilder withServletContextAttribute(String key, Object value) {
+        public Builder withServletContextAttribute(String key, Object value) {
             servletContextAttributes.put(key, value);
             return this;
         }
 
-        public FeatherConBuilder withServletContextListener(EventListener servletContextListener) {
+        public Builder withServletContextListener(EventListener servletContextListener) {
             servletContextListeners.add(servletContextListener);
             return this;
         }
 
-        public FeatherConBuilder withInitParameter(String key, String value) {
+        public Builder withInitParameter(String key, String value) {
             initParameters.put(key, value);
             return this;
         }
 
-        public FeatherConBuilder withServletContextListener(String servletContextListenerClassName) {
+        public Builder withServletContextListener(String servletContextListenerClassName) {
             try {
                 EventListener aClass = (EventListener) getClass().getClassLoader().loadClass(servletContextListenerClassName).newInstance();
                 servletContextListeners.add(aClass);
@@ -100,17 +100,17 @@ public class FeatherCon {
             return this;
         }
 
-        public FeatherConBuilder withFilter(FilterWrapper filterWrapper) {
+        public Builder withFilter(FilterWrapper filterWrapper) {
             filters.add(filterWrapper);
             return this;
         }
 
-        public FeatherConBuilder withServletConfiguration(ServletConfiguration servletConfiguration) {
+        public Builder withServletConfiguration(ServletConfiguration servletConfiguration) {
             servletConfigurations.add(servletConfiguration);
             return this;
         }
 
-        public FeatherConBuilder withContextName(String contextName) {
+        public Builder withContextName(String contextName) {
             this.contextName = contextName;
             return this;
         }

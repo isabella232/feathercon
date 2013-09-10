@@ -9,18 +9,18 @@ import java.io.File;
 public class IntegrationBase {
 
     protected int serverPort = 8888;
-    protected ServletConfiguration.ServletConfigurationBuilder servletBuilder;
+    protected ServletConfiguration.Builder servletBuilder;
     protected String resourceBase;
-    protected FeatherCon.FeatherConBuilder serverBuilder;
+    protected FeatherCon.Builder serverBuilder;
     protected FeatherCon server;
 
     @Before
     public void setup() throws Exception {
         String resourcePath = getClass().getResource("/content-root/anchor").getFile();
         resourceBase = new File(resourcePath).getParentFile().getAbsolutePath() + "/static/";
-        servletBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        servletBuilder = new ServletConfiguration.Builder();
         servletBuilder.withServletClass(DefaultServlet.class).withPathSpec("/*").withInitParameter("resourceBase", resourceBase);
-        serverBuilder = new FeatherCon.FeatherConBuilder();
+        serverBuilder = new FeatherCon.Builder();
     }
 
     @After

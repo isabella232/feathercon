@@ -13,11 +13,11 @@ import static org.hamcrest.core.IsNull.notNullValue;
 
 public class FilterWrapperTest {
 
-    private FilterWrapper.FilterWrapperBuilder builder;
+    private FilterWrapper.Builder builder;
 
     @Before
     public void setUp() throws Exception {
-        builder = new FilterWrapper.FilterWrapperBuilder();
+        builder = new FilterWrapper.Builder();
     }
 
     @Test

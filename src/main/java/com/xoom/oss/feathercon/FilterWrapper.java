@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class FilterWrapper {
+public class FilterWrapper {
     public final FilterHolder filterHolder;
     public final List<String> pathSpec;
     public final EnumSet<DispatcherType> dispatches;
@@ -24,8 +24,8 @@ class FilterWrapper {
         this.dispatches = dispatches;
     }
 
-    public static class FilterWrapperBuilder {
-        private final Logger logger = LoggerFactory.getLogger(FilterWrapper.FilterWrapperBuilder.class);
+    public static class Builder {
+        private final Logger logger = LoggerFactory.getLogger(Builder.class);
         Class<? extends Filter> filterClass;
         Map<String, String> initParams = new HashMap<String, String>();
         List<String> pathSpecs = new ArrayList<String>();
@@ -33,22 +33,22 @@ class FilterWrapper {
 
         private boolean built;
 
-        public FilterWrapperBuilder withFilterClass(Class<? extends Filter> filterClass) {
+        public Builder withFilterClass(Class<? extends Filter> filterClass) {
             this.filterClass = filterClass;
             return this;
         }
 
-        public FilterWrapperBuilder withInitParameter(String key, String value) {
+        public Builder withInitParameter(String key, String value) {
             initParams.put(key, value);
             return this;
         }
 
-        public FilterWrapperBuilder withPathSpec(String pathSpec) {
+        public Builder withPathSpec(String pathSpec) {
             pathSpecs.add(pathSpec);
             return this;
         }
 
-        public FilterWrapperBuilder withDispatcherTypeSet(EnumSet<DispatcherType> dispatcherTypeSet) {
+        public Builder withDispatcherTypeSet(EnumSet<DispatcherType> dispatcherTypeSet) {
             this.dispatcherTypeSet = dispatcherTypeSet;
             return this;
         }

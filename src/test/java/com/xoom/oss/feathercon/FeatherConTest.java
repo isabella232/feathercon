@@ -14,11 +14,11 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 public class FeatherConTest {
-    FeatherCon.FeatherConBuilder builder;
+    FeatherCon.Builder builder;
 
     @Before
     public void setUp() throws Exception {
-        builder = new FeatherCon.FeatherConBuilder();
+        builder = new FeatherCon.Builder();
     }
 
     @After
@@ -68,7 +68,7 @@ public class FeatherConTest {
     @Test
     public void testWithFilter() throws Exception {
         EnumSet<DispatcherType> dispatcherTypes = EnumSet.allOf(DispatcherType.class);
-        FilterWrapper.FilterWrapperBuilder filterBuilderA = new FilterWrapper.FilterWrapperBuilder();
+        FilterWrapper.Builder filterBuilderA = new FilterWrapper.Builder();
 
         filterBuilderA
                 .withFilterClass(FilterA.class)
@@ -78,7 +78,7 @@ public class FeatherConTest {
         FilterWrapper filterWrapperA = filterBuilderA.build();
         builder.withFilter(filterWrapperA);
 
-        FilterWrapper.FilterWrapperBuilder filterBuilderB = new FilterWrapper.FilterWrapperBuilder();
+        FilterWrapper.Builder filterBuilderB = new FilterWrapper.Builder();
         filterBuilderB
                 .withFilterClass(FilterB.class)
                 .withPathSpec("/apiv1/*")
@@ -96,7 +96,7 @@ public class FeatherConTest {
         assertThat(builder.servletConfigurations, is(notNullValue()));
         assertThat(builder.servletConfigurations.size(), equalTo(0));
 
-        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        ServletConfiguration.Builder servletConfigBuilder = new ServletConfiguration.Builder();
         servletConfigBuilder.withServletClass(DefaultServlet.class)
                 .withServletName("superServlet")
                 .withInitOrder(1)
@@ -118,10 +118,10 @@ public class FeatherConTest {
 
     @Test
     public void testBuild() throws Exception {
-        assertThat(builder.servletConfigurations, is(notNullValue()));
-        assertThat(builder.servletConfigurations.size(), equalTo(0));
+        assertThat(this.builder.servletConfigurations, is(notNullValue()));
+        assertThat(this.builder.servletConfigurations.size(), equalTo(0));
 
-        ServletConfiguration.ServletConfigurationBuilder servletConfigBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        ServletConfiguration.Builder servletConfigBuilder = new ServletConfiguration.Builder();
         servletConfigBuilder.withServletClass(DefaultServlet.class)
                 .withServletName("superServlet")
                 .withInitOrder(1)
@@ -129,28 +129,28 @@ public class FeatherConTest {
                 .withPathSpec("/css/*")
                 .withPathSpec("/js/*");
         ServletConfiguration servletConfiguration = servletConfigBuilder.build();
-        builder.withServletConfiguration(servletConfiguration);
-        assertThat(builder.servletConfigurations.size(), equalTo(1));
-        assertThat(builder.servletConfigurations.contains(servletConfiguration), equalTo(true));
+        this.builder.withServletConfiguration(servletConfiguration);
+        assertThat(this.builder.servletConfigurations.size(), equalTo(1));
+        assertThat(this.builder.servletConfigurations.contains(servletConfiguration), equalTo(true));
 
         String contextName = "mywebapp";
-        builder.withContextName(contextName);
+        this.builder.withContextName(contextName);
 
         Object contextObject = new Object();
         String contextAttributeKey = "key";
-        builder.withServletContextAttribute(contextAttributeKey, contextObject);
+        this.builder.withServletContextAttribute(contextAttributeKey, contextObject);
 
-        builder.withInitParameter("k1", "v1");
+        this.builder.withInitParameter("k1", "v1");
 
-        builder.withServletContextListener(new ContextListener());
-        builder.withServletContextListener("com.xoom.oss.feathercon.ContextListener");
+        this.builder.withServletContextListener(new ContextListener());
+        this.builder.withServletContextListener("com.xoom.oss.feathercon.ContextListener");
 
         EnumSet<DispatcherType> dispatcherTypes = EnumSet.allOf(DispatcherType.class);
-        FilterWrapper.FilterWrapperBuilder filterWrapperBuilder = new FilterWrapper.FilterWrapperBuilder();
-        filterWrapperBuilder.withFilterClass(FilterA.class).withPathSpec("/apiv1/*").withPathSpec("/apiv2/*").withDispatcherTypeSet(dispatcherTypes);
-        builder.withFilter(filterWrapperBuilder.build());
+        FilterWrapper.Builder builder = new FilterWrapper.Builder();
+        builder.withFilterClass(FilterA.class).withPathSpec("/apiv1/*").withPathSpec("/apiv2/*").withDispatcherTypeSet(dispatcherTypes);
+        this.builder.withFilter(builder.build());
 
-        FeatherCon build = builder.build();
+        FeatherCon build = this.builder.build();
         assertThat(build.contextName, equalTo(contextName));
         assertThat(build.port, equalTo(8080));
         assertThat(build.servletContextAttributes, is(notNullValue()));

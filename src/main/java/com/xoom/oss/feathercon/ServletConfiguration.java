@@ -34,8 +34,8 @@ public class ServletConfiguration {
         }
     }
 
-    public static class ServletConfigurationBuilder {
-        private final Logger logger = LoggerFactory.getLogger(ServletConfigurationBuilder.class);
+    public static class Builder {
+        private final Logger logger = LoggerFactory.getLogger(Builder.class);
         Class<? extends Servlet> servletClass;
         Integer initOrder = 1;
         String servletName;
@@ -43,12 +43,12 @@ public class ServletConfiguration {
         Map<String, String> initParameters = new HashMap<String, String>();
         Boolean built = false;
 
-        public ServletConfigurationBuilder withServletClass(@NotNull Class<? extends Servlet> servletClass) {
+        public Builder withServletClass(@NotNull Class<? extends Servlet> servletClass) {
             this.servletClass = servletClass;
             return this;
         }
 
-        public ServletConfigurationBuilder withServletClassName(@NotNull String servletClassName) {
+        public Builder withServletClassName(@NotNull String servletClassName) {
             try {
                 this.servletClass = (Class<? extends Servlet>) getClass().getClassLoader().loadClass(servletClassName);
                 return this;
@@ -57,27 +57,27 @@ public class ServletConfiguration {
             }
         }
 
-        public ServletConfigurationBuilder withInitOrder(@NotNull Integer initOrder) {
+        public Builder withInitOrder(@NotNull Integer initOrder) {
             this.initOrder = initOrder;
             return this;
         }
 
-        public ServletConfigurationBuilder withServletName(String servletName) {
+        public Builder withServletName(String servletName) {
             this.servletName = servletName;
             return this;
         }
 
-        public ServletConfigurationBuilder withPathSpec(@NotNull String pathSpec) {
+        public Builder withPathSpec(@NotNull String pathSpec) {
             pathSpecs.add(pathSpec);
             return this;
         }
 
-        public ServletConfigurationBuilder withInitParameter(String key, String value) {
+        public Builder withInitParameter(String key, String value) {
             initParameters.put(key, value);
             return this;
         }
 
-        public ServletConfigurationBuilder withInitParameters(Map<String, String> initParameters) {
+        public Builder withInitParameters(Map<String, String> initParameters) {
             this.initParameters.putAll(initParameters);
             return this;
         }

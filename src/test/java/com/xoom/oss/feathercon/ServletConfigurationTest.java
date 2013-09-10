@@ -14,11 +14,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ServletConfigurationTest {
 
-    private ServletConfiguration.ServletConfigurationBuilder builder;
+    private ServletConfiguration.Builder builder;
 
     @Before
     public void setUp() throws Exception {
-        builder = new ServletConfiguration.ServletConfigurationBuilder();
+        builder = new ServletConfiguration.Builder();
     }
 
     @After

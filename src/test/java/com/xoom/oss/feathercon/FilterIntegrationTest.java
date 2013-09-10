@@ -24,7 +24,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 public class FilterIntegrationTest extends IntegrationBase {
     @Test
     public void testFiltering() throws Exception {
-        FilterWrapper.FilterWrapperBuilder filterBuilder = new FilterWrapper.FilterWrapperBuilder();
+        FilterWrapper.Builder filterBuilder = new FilterWrapper.Builder();
         FilterWrapper filterWrapper = filterBuilder.withFilterClass(FilterT.class)
                 .withPathSpec("/*")
                 .withDispatcherTypeSet(EnumSet.of(DispatcherType.REQUEST))

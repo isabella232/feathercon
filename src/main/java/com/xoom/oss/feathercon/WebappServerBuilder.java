@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A builder that produces a JAX-RS Jersey RESTful server with static content hosting in one container.
  */
-public class WebappServerBuilder extends FeatherCon.FeatherConBuilder {
+public class WebappServerBuilder extends FeatherCon.Builder {
     /**
      * Builder to host JAX-RS webapp with static content in one server.
      *
@@ -18,7 +18,7 @@ public class WebappServerBuilder extends FeatherCon.FeatherConBuilder {
      */
     public WebappServerBuilder(@NotNull String jerseyScanPackages, @NotNull String restPathSpec, @NotNull String resourceBase, Integer serverPort) {
         bindAll(new JerseyServerBuilder(jerseyScanPackages, restPathSpec)).withPort(serverPort);
-        ServletConfiguration.ServletConfigurationBuilder staticContentBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+        ServletConfiguration.Builder staticContentBuilder = new ServletConfiguration.Builder();
         staticContentBuilder
                 .withServletClass(DefaultServlet.class)
                 .withPathSpec("/")
