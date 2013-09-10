@@ -13,13 +13,13 @@ up a JAX-RS server, which is taken from one of the unit tests:
 
 Here's how to setup a servlet that serves static content:
 
-    ServletConfiguration.ServletConfigurationBuilder servletBuilder = new ServletConfiguration.ServletConfigurationBuilder();
+    ServletConfiguration.Builder servletBuilder = new ServletConfiguration.Builder();
     servletBuilder
             .withServletClass(DefaultServlet.class)
             .withPathSpec("/")
             .withInitParameter("resourceBase", "test-data/static/");
 
-    FeatherCon.FeatherConBuilder serverBuilder = new FeatherCon.FeatherConBuilder();
+    FeatherCon.Builder serverBuilder = new FeatherCon.Builder();
     serverBuilder.withServletConfiguration(servletBuilder.build());
     FeatherCon server = serverBuilder.build();
     server.start();
@@ -79,6 +79,6 @@ with this dependency
             <dependency>
                 <groupId>com.xoom.oss</groupId>
                 <artifactId>feathercon</artifactId>
-                <version>1.3</version>  <!-- or latest in the repository above -->
+                <version>1.3.1</version>  <!-- or latest in the repository above -->
             </dependency>
         </dependencies>
