@@ -6,9 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.DispatcherType;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -147,9 +145,6 @@ public class FeatherConTest {
         builder.withServletContextListener(new ContextListener());
         builder.withServletContextListener("com.xoom.oss.feathercon.ContextListener");
 
-        List<String> filterAPaths = new ArrayList<String>();
-        filterAPaths.add("/apiv1/*");
-        filterAPaths.add("/apiv2/*");
         EnumSet<DispatcherType> dispatcherTypes = EnumSet.allOf(DispatcherType.class);
         FilterWrapper.FilterWrapperBuilder filterWrapperBuilder = new FilterWrapper.FilterWrapperBuilder();
         filterWrapperBuilder.withFilterClass(FilterA.class).withPathSpec("/apiv1/*").withPathSpec("/apiv2/*").withDispatcherTypeSet(dispatcherTypes);
