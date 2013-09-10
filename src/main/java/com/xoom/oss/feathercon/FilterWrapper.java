@@ -53,7 +53,7 @@ public class FilterWrapper {
             return this;
         }
 
-        FilterWrapper build() {
+        public FilterWrapper build() {
             if (built) {
                 throw new IllegalStateException("This builder can be used to produce one filter wrapper instance.  Please create a new builder.");
             }
