@@ -36,6 +36,17 @@ public class FilterWrapperTest {
     }
 
     @Test
+    public void testWithInitParameter() throws Exception {
+        builder.withInitParameter("k1", "v1").withInitParameter("k2", "v2");
+        assertThat(builder.initParams, is(notNullValue()));
+        assertThat(builder.initParams.size(), equalTo(2));
+        assertThat(builder.initParams.containsKey("k1"), equalTo(true));
+        assertThat(builder.initParams.containsKey("k2"), equalTo(true));
+        assertThat(builder.initParams.get("k1"), equalTo("v1"));
+        assertThat(builder.initParams.get("k2"), equalTo("v2"));
+    }
+
+    @Test
     public void testWithDispatcherTypeSet() throws Exception {
         builder.withDispatcherTypeSet(EnumSet.allOf(DispatcherType.class));
         assertThat(builder.dispatcherTypeSet, equalTo(EnumSet.allOf(DispatcherType.class)));
