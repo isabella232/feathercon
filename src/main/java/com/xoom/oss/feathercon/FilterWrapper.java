@@ -29,7 +29,7 @@ class FilterWrapper {
         Class<? extends Filter> filterClass;
         Map<String, String> initParams = new HashMap<String, String>();
         List<String> pathSpecs = new ArrayList<String>();
-        EnumSet<DispatcherType> dispatcherTypeSet;
+        EnumSet<DispatcherType> dispatcherTypeSet = EnumSet.of(DispatcherType.REQUEST);
 
         private boolean built;
 
