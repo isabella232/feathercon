@@ -57,6 +57,7 @@ public class FilterWrapperTest {
         builder.withFilterClass(FilterA.class);
         builder.withPathSpec("/apiv1/*").withPathSpec("/apiv2/*");
         builder.withDispatcherTypeSet(EnumSet.allOf(DispatcherType.class));
+        builder.withInitParameter("k1", "v2");
         FilterWrapper build = builder.build();
 
         build.toString();
