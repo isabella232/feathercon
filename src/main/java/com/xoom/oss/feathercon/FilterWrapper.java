@@ -55,22 +55,20 @@ class FilterWrapper {
 
         FilterWrapper build() {
             if (built) {
-                throw new IllegalStateException("FilterWrapper has already been built.  Please create a new builder.");
+                throw new IllegalStateException("This builder can be used to produce one filter wrapper instance.  Please create a new builder.");
             }
-            built = true;
-
             if (filterClass == null) {
                 throw new IllegalStateException("Cannot build filter wrapper without a filter class");
             }
-
             if (pathSpecs.isEmpty()) {
                 logger.warn("Filter {} has no pathSpecs, therefore this filter will not handle any requests.", filterClass);
             }
-
             FilterHolder filterHolder = new FilterHolder(filterClass);
             for (String key : initParams.keySet()) {
                 filterHolder.setInitParameter(key, initParams.get(key));
             }
+            built = true;
+            logger.info("Built {}", this);
             return new FilterWrapper(filterHolder, pathSpecs, dispatcherTypeSet);
         }
 
