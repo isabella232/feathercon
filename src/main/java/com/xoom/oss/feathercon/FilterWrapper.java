@@ -18,7 +18,7 @@ class FilterWrapper {
     public final List<String> pathSpec;
     public final EnumSet<DispatcherType> dispatches;
 
-    public FilterWrapper(FilterHolder filterHolder, List<String> pathSpec, EnumSet<DispatcherType> dispatches) {
+    private FilterWrapper(FilterHolder filterHolder, List<String> pathSpec, EnumSet<DispatcherType> dispatches) {
         this.filterHolder = filterHolder;
         this.pathSpec = Collections.unmodifiableList(pathSpec);
         this.dispatches = dispatches;
