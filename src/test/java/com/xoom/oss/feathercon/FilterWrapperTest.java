@@ -48,14 +48,11 @@ public class FilterWrapperTest {
 
     @Test
     public void testWithDispatcherTypeSet() throws Exception {
-        builder.withDispatcherTypeSet(EnumSet.allOf(DispatcherType.class));
-        assertThat(builder.dispatcherTypeSet, equalTo(EnumSet.allOf(DispatcherType.class)));
-    }
-
-    @Test
-    public void testWithDefaultDispatcherType() throws Exception {
         assertThat(builder.dispatcherTypeSet, is(notNullValue()));
         assertThat(builder.dispatcherTypeSet, equalTo(EnumSet.of(DispatcherType.REQUEST)));
+
+        builder.withDispatcherTypeSet(EnumSet.allOf(DispatcherType.class));
+        assertThat(builder.dispatcherTypeSet, equalTo(EnumSet.allOf(DispatcherType.class)));
     }
 
     @Test
