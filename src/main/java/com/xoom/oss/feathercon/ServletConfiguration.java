@@ -121,34 +121,6 @@ public class ServletConfiguration {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ServletConfiguration that = (ServletConfiguration) o;
-
-        if (!initOrder.equals(that.initOrder)) return false;
-        if (!initParameters.equals(that.initParameters)) return false;
-        if (!pathSpecs.equals(that.pathSpecs)) return false;
-        if (!servletClass.equals(that.servletClass)) return false;
-        if (!servletHolder.equals(that.servletHolder)) return false;
-        if (!servletName.equals(that.servletName)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = servletHolder.hashCode();
-        result = 31 * result + servletClass.hashCode();
-        result = 31 * result + servletName.hashCode();
-        result = 31 * result + initOrder.hashCode();
-        result = 31 * result + pathSpecs.hashCode();
-        result = 31 * result + initParameters.hashCode();
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "ServletConfiguration{" +
                 "servletHolder=" + servletHolder +
