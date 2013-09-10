@@ -53,6 +53,12 @@ public class FilterWrapperTest {
     }
 
     @Test
+    public void testWithDefaultDispatcherType() throws Exception {
+        assertThat(builder.dispatcherTypeSet, is(notNullValue()));
+        assertThat(builder.dispatcherTypeSet, equalTo(EnumSet.of(DispatcherType.REQUEST)));
+    }
+
+    @Test
     public void testBuild() throws Exception {
         builder.withFilterClass(FilterA.class);
         builder.withPathSpec("/apiv1/*").withPathSpec("/apiv2/*");
