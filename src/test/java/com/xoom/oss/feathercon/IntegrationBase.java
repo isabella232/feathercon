@@ -6,7 +6,7 @@ import org.junit.Before;
 
 import java.io.File;
 
-public class IntegrationBase {
+public class IntegrationBase extends BaseTest {
 
     protected int serverPort = 8888;
     protected ServletConfiguration.Builder servletBuilder;

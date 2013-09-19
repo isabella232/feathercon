@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class JerseyServerBuilderTest {
+public class JerseyServerBuilderTest extends BaseTest {
 
     private FeatherCon server;
 

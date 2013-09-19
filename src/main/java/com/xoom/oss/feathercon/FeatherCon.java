@@ -63,6 +63,7 @@ public class FeatherCon {
             this.servletContextListeners = builder.servletContextListeners;
             this.filters = builder.filters;
             this.servletConfigurations = builder.servletConfigurations;
+            this.initParameters.putAll(builder.initParameters);
             return this;
         }
 

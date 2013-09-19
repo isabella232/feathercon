@@ -20,7 +20,7 @@ import java.io.FileReader;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class WebappServerBuilderTest {
+public class WebappServerBuilderTest extends BaseTest {
 
     private String restPathSpec = "/api/*";
     private int serverPort = 8888;

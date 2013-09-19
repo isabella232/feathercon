@@ -11,7 +11,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
 
-public class FilterWrapperTest {
+public class FilterWrapperTest extends BaseTest {
 
     private FilterWrapper.Builder builder;
 
