@@ -82,3 +82,12 @@ with this dependency
                 <version>1.3.1</version>  <!-- or latest in the repository above -->
             </dependency>
         </dependencies>
+
+Finally, if in the course of using FeatherCon your code programs to the Servlet API, depend on the Servlet API v3 API, like this
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
