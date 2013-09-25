@@ -79,7 +79,7 @@ with this dependency
             <dependency>
                 <groupId>com.xoom.oss</groupId>
                 <artifactId>feathercon</artifactId>
-                <version>1.3.1</version>  <!-- or latest in the repository above -->
+                <version>1.3.2</version>  <!-- or latest in the repository above -->
             </dependency>
         </dependencies>
 
