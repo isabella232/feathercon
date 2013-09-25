@@ -88,6 +88,6 @@ Finally, if in the course of using FeatherCon your code programs to the Servlet 
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <version>3.0.1</version>
             <scope>provided</scope>
         </dependency>
