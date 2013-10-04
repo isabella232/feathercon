@@ -5,6 +5,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.Servlet;
+import javax.servlet.http.HttpServlet;
 import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -29,6 +31,14 @@ public class ServletConfigurationTest extends BaseTest {
     public void testWithServletClass() throws Exception {
         builder.withServletClass(DefaultServlet.class);
         assertThat(builder.servletClass.equals(DefaultServlet.class), equalTo(true));
+    }
+
+    @Test
+    public void testWithServlet() throws Exception {
+        Servlet servlet = new HttpServlet() {
+        };
+        builder.withServlet(servlet);
+        assertThat(builder.servlet.equals(servlet), equalTo(true));
     }
 
     @Test
@@ -133,9 +143,38 @@ public class ServletConfigurationTest extends BaseTest {
         builder.build();
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testBuildWithServletClassAndServletInstance_a() throws Exception {
+        builder.withServlet(new HttpServlet() {
+        }).withServletClass(DefaultServlet.class);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testBuildWithServletClassAndServletInstance_b() throws Exception {
+        builder
+                .withServletClass(DefaultServlet.class)
+                .withServlet(new HttpServlet() {
+                })
+        ;
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testBuildWithServletClassAndServletInstance_c() throws Exception {
+        builder
+                .withServletClassName(DefaultServlet.class.getCanonicalName())
+                .withServlet(new HttpServlet() {
+                })
+        ;
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testNotAServletClass() throws Exception {
+    public void testNotAServletClass_a() throws Exception {
         builder.withServletClassName("com.xoom.oss.feathercon.ServletConfigurationTest.Foo");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNotAServletClass_b() throws Exception {
+        builder.withServletClassName(Foo.class.getCanonicalName());
     }
 
     private static class Foo {

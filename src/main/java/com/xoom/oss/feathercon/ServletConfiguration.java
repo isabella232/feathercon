@@ -37,6 +37,7 @@ public class ServletConfiguration {
     public static class Builder {
         private final Logger logger = LoggerFactory.getLogger(Builder.class);
         Class<? extends Servlet> servletClass;
+        Servlet servlet;
         Integer initOrder = 1;
         String servletName;
         List<String> pathSpecs = new ArrayList<String>();
@@ -44,13 +45,27 @@ public class ServletConfiguration {
         Boolean built = false;
 
         public Builder withServletClass(@NotNull Class<? extends Servlet> servletClass) {
+            if (servlet != null) {
+                throw new IllegalStateException(String.format("This builder already has been configured with Servlet %s", servlet));
+            }
+            if (!Servlet.class.isAssignableFrom(servletClass)) {
+                throw new IllegalArgumentException(String.format("Provided class %s is not a servlet", servletClass));
+            }
             this.servletClass = servletClass;
             return this;
         }
 
+        @SuppressWarnings("unchecked")
         public Builder withServletClassName(@NotNull String servletClassName) {
+            if (servlet != null) {
+                throw new IllegalStateException(String.format("This builder already has been configured with Servlet %s", servlet));
+            }
             try {
-                this.servletClass = (Class<? extends Servlet>) getClass().getClassLoader().loadClass(servletClassName);
+                Class<?> aClass = getClass().getClassLoader().loadClass(servletClassName);
+                if (!Servlet.class.isAssignableFrom(aClass)) {
+                    throw new IllegalArgumentException(String.format("Provided class %s is not a servlet", servletClassName));
+                }
+                this.servletClass = (Class<? extends Servlet>) aClass;
                 return this;
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException(e);
@@ -64,6 +79,14 @@ public class ServletConfiguration {
 
         public Builder withServletName(String servletName) {
             this.servletName = servletName;
+            return this;
+        }
+
+        public Builder withServlet(Servlet servlet) {
+            if (servletClass != null) {
+                throw new IllegalStateException(String.format("This builder already has been configured with Servlet class %s", servletClass));
+            }
+            this.servlet = servlet;
             return this;
         }
 
@@ -89,10 +112,9 @@ public class ServletConfiguration {
             if (servletClass == null) {
                 servletClass = DefaultServlet.class;
             }
-            if (!Servlet.class.isAssignableFrom(servletClass)) {
-                throw new IllegalArgumentException(String.format("Provided class %s is not a servlet", servletClass.getCanonicalName()));
-            }
-            ServletHolder servletHolder = new ServletHolder(servletClass);
+
+            ServletHolder servletHolder = servlet != null ? new ServletHolder(servlet) : new ServletHolder(servletClass);
+
             if (initOrder != null) {
                 servletHolder.setInitOrder(initOrder);
             }
