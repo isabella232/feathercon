@@ -126,6 +126,7 @@ public class FeatherCon {
 
             port = port == null ? DEFAULT_PORT : port;
             Server server = new Server(new InetSocketAddress("0.0.0.0", port));
+            server.setGracefulShutdown(100);
 
             ServletContextHandler contextHandler = new ServletContextHandler(server, contextName);
             for (ServletConfiguration servletConfiguration : servletConfigurations) {
