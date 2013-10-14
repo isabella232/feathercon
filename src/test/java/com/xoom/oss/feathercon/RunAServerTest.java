@@ -22,11 +22,12 @@ public class RunAServerTest {
             }
         }).withPathSpec("/*");
 
-        FeatherCon server = new FeatherCon.Builder().withPort(9999).withServletConfiguration(sConfig.build()).build();
+        FeatherCon server = new FeatherCon.Builder().withPort(0).withServletConfiguration(sConfig.build()).build();
 
         System.out.println("starting");
         server.start();
 
         while (true) ;
     }
+
 }

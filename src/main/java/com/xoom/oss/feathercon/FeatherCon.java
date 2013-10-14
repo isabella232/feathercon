@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class FeatherCon {
     public static final Integer DEFAULT_PORT = 8080;
-    public final Integer port;
+    public Integer port;
     public final String contextName;
     public final Map<String, Object> servletContextAttributes;
     private final Server server;
@@ -30,6 +30,9 @@ public class FeatherCon {
 
     public void start() throws Exception {
         server.start();
+        if (port == 0) {
+            port = server.getConnectors()[0].getLocalPort();
+        }
     }
 
     public void stop() throws Exception {
