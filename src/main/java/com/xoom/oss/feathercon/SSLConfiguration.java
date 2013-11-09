@@ -9,14 +9,14 @@ public class SSLConfiguration {
     public final File keyStoreFile;
     public final String keyStorePassword;
     public final Integer sslPort;
-    public final Boolean sslOnly;
+    public final boolean sslOnly;
     public final List<String> excludeCipherSuites;
 
-    private SSLConfiguration(File keyStoreFile, String keyStorePassword, Integer sslPort, Boolean sslOnly, List<String> excludeCipherSuites) {
+    private SSLConfiguration(File keyStoreFile, String keyStorePassword, Integer sslPort, boolean sslOnly, List<String> excludeCipherSuites) {
         this.keyStoreFile = keyStoreFile;
         this.keyStorePassword = keyStorePassword;
         this.sslPort = sslPort;
-        this.sslOnly = sslOnly == null ? false : sslOnly;
+        this.sslOnly = sslOnly;
         this.excludeCipherSuites = Collections.unmodifiableList(excludeCipherSuites);
     }
 
