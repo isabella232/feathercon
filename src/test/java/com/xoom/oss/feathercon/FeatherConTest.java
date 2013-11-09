@@ -135,6 +135,22 @@ public class FeatherConTest extends BaseTest {
     }
 
     @Test
+    public void testWithSSLEphemeralPort() throws Exception {
+        SSLConfiguration sslConfiguration = new SSLConfiguration.Builder().
+                withKeyStoreFile(new File("src/test/resources/keystore.jks"))
+                .withKeyStorePassword("changeit")
+                .withSslPort(0)
+                .withSslOnly(true).build();
+        builder.withSslConfiguration(sslConfiguration);
+        assertThat(sslConfiguration, equalTo(builder.sslConfiguration));
+
+        FeatherCon server = builder.build();
+        server.start();
+        assertThat(server.getHttpPort(), is(nullValue()));
+        assertThat(server.getHttpsPort() > 0, equalTo(true));
+    }
+
+    @Test
     public void testBuild() throws Exception {
         assertThat(this.builder.servletConfigurations, is(notNullValue()));
         assertThat(this.builder.servletConfigurations.size(), equalTo(0));
