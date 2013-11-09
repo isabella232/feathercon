@@ -6,18 +6,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
 import java.util.EnumSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 
 public class FeatherConTest extends BaseTest {
     FeatherCon.Builder builder;
@@ -122,26 +118,20 @@ public class FeatherConTest extends BaseTest {
         assertThat(builder.contextName, equalTo(contextName));
     }
 
-//    @Test
+    @Test
     public void testWithSSL() throws Exception {
-        ServletConfiguration.Builder sconfig = new ServletConfiguration.Builder();
-        sconfig.withServlet(new HttpServlet() {
-            @Override
-            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-                resp.getWriter().print("hello ssl client");
-            }
-        }).withPathSpec("/*");
-        File keyStoreFile = new File("src/test/resources/keystore.jks");
-        builder.withKeyStoreFile(keyStoreFile);
-        builder.withKeyStorePassword("changeit");
-        builder.withSslPort(8443);
-        builder.withSslOnly(true);
-        builder.withServletConfiguration(sconfig.build());
+        SSLConfiguration sslConfiguration = new SSLConfiguration.Builder().
+                withKeyStoreFile(new File("src/test/resources/keystore.jks"))
+                .withKeyStorePassword("changeit")
+                .withSslPort(8443)
+                .withSslOnly(true).build();
+        builder.withSslConfiguration(sslConfiguration);
+        assertThat(sslConfiguration, equalTo(builder.sslConfiguration));
 
-        FeatherCon build = builder.build();
-        build.start();
-        System.out.println("started on port 8443");
-        build.join();
+        FeatherCon server = builder.build();
+        server.start();
+        assertThat(server.getHttpPort(), is(nullValue()));
+        assertThat(8443, equalTo(server.getHttpsPort()));
     }
 
     @Test

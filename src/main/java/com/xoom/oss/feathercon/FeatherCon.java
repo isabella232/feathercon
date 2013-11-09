@@ -4,6 +4,7 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -39,6 +40,34 @@ public class FeatherCon {
         }
     }
 
+    /**
+     * Return the port of the first connector that does not implement SslConnector.
+     *
+     * @return http port
+     */
+    public Integer getHttpPort() {
+        for (Connector connector : server.getConnectors()) {
+            if (!SslConnector.class.isAssignableFrom(connector.getClass())) {
+                return connector.getLocalPort();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return the port of the first connector that implements SslConnector.
+     *
+     * @return https port
+     */
+    public Integer getHttpsPort() {
+        for (Connector connector : server.getConnectors()) {
+            if (SslConnector.class.isAssignableFrom(connector.getClass())) {
+                return connector.getLocalPort();
+            }
+        }
+        return null;
+    }
+
     public void stop() throws Exception {
         server.stop();
     }
@@ -63,6 +92,7 @@ public class FeatherCon {
         protected File keyStoreFile;
         protected String keyStorePassword;
         protected Integer sslPort;
+        protected SSLConfiguration sslConfiguration;
         protected Boolean sslOnly;
 
         private Boolean built = false;
@@ -147,6 +177,11 @@ public class FeatherCon {
             return this;
         }
 
+        public Builder withSslConfiguration(SSLConfiguration sslConfiguration) {
+            this.sslConfiguration = sslConfiguration;
+            return this;
+        }
+
         public FeatherCon build() {
             if (built) {
                 throw new IllegalStateException("This builder can be used to produce one server instance.  Please create a new builder.");
@@ -181,22 +216,16 @@ public class FeatherCon {
                 }
             }
 
-            if (keyStoreFile != null) {
-                if (keyStorePassword == null) {
-                    throw new IllegalArgumentException("keystore password has not been specified.");
-                }
-                if (sslPort == null) {
-                    throw new IllegalArgumentException("SSL port has not been specified.");
-                }
-                if (sslOnly) {
+            if (sslConfiguration != null) {
+                if (sslConfiguration.sslOnly) {
                     for (Connector connector : server.getConnectors()) {
                         server.removeConnector(connector);
                     }
                 }
-                SslContextFactory sslContextFactory = new SslContextFactory(keyStoreFile.getAbsolutePath());
-                sslContextFactory.setKeyStorePassword(keyStorePassword);
+                SslContextFactory sslContextFactory = new SslContextFactory(sslConfiguration.keyStoreFile.getAbsolutePath());
+                sslContextFactory.setKeyStorePassword(sslConfiguration.keyStorePassword);
                 SslSelectChannelConnector connector = new SslSelectChannelConnector(sslContextFactory);
-                connector.setPort(sslPort);
+                connector.setPort(sslConfiguration.sslPort);
                 server.addConnector(connector);
             }
 
