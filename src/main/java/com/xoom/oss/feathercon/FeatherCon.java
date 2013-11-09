@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class FeatherCon {
     public static final Integer DEFAULT_PORT = 8080;
-    public Integer port;
+    public final Integer port;
     public final String contextName;
     public final Map<String, Object> servletContextAttributes;
     private final Server server;
@@ -34,13 +34,11 @@ public class FeatherCon {
 
     public void start() throws Exception {
         server.start();
-        if (port == 0) {
-            port = server.getConnectors()[0].getLocalPort();
-        }
     }
 
     /**
-     * Return the port of the first connector that does not implement SslConnector.
+     * Return the port of the first connector that does not implement SslConnector.  When using an ephemeral port,
+     * this value will be nonzero, unlike the value of this.port.
      *
      * @return http port
      */
@@ -54,7 +52,8 @@ public class FeatherCon {
     }
 
     /**
-     * Return the port of the first connector that implements SslConnector.
+     * Return the port of the first connector that implements SslConnector.  When using an ephemeral port,
+     * this value will be nonzero, unlike the value of this.port.
      *
      * @return https port
      */
@@ -201,6 +200,7 @@ public class FeatherCon {
                 sslContextFactory.setKeyStorePassword(sslConfiguration.keyStorePassword);
                 SslSelectChannelConnector connector = new SslSelectChannelConnector(sslContextFactory);
                 connector.setPort(sslConfiguration.sslPort);
+                connector.setExcludeCipherSuites(sslConfiguration.excludeCipherSuites.toArray(new String[sslConfiguration.excludeCipherSuites.size()]));
                 server.addConnector(connector);
             }
 
