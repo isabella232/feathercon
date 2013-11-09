@@ -6,6 +6,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
 import java.util.EnumSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -114,6 +120,28 @@ public class FeatherConTest extends BaseTest {
         String contextName = "mywebapp";
         builder.withContextName(contextName);
         assertThat(builder.contextName, equalTo(contextName));
+    }
+
+//    @Test
+    public void testWithSSL() throws Exception {
+        ServletConfiguration.Builder sconfig = new ServletConfiguration.Builder();
+        sconfig.withServlet(new HttpServlet() {
+            @Override
+            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                resp.getWriter().print("hello ssl client");
+            }
+        }).withPathSpec("/*");
+        File keyStoreFile = new File("src/test/resources/keystore.jks");
+        builder.withKeyStoreFile(keyStoreFile);
+        builder.withKeyStorePassword("changeit");
+        builder.withSslPort(8443);
+        builder.withSslOnly(true);
+        builder.withServletConfiguration(sconfig.build());
+
+        FeatherCon build = builder.build();
+        build.start();
+        System.out.println("started on port 8443");
+        build.join();
     }
 
     @Test

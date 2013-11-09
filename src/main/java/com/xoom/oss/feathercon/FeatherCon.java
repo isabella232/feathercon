@@ -1,12 +1,16 @@
 package com.xoom.oss.feathercon;
 
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.EventListener;
 import java.util.HashMap;
@@ -56,6 +60,10 @@ public class FeatherCon {
         protected List<FilterWrapper> filters = new LinkedList<FilterWrapper>();
         protected List<ServletConfiguration> servletConfigurations = new LinkedList<ServletConfiguration>();
         protected Map<String, String> initParameters = new HashMap<String, String>();
+        protected File keyStoreFile;
+        protected String keyStorePassword;
+        protected Integer sslPort;
+        protected Boolean sslOnly;
 
         private Boolean built = false;
 
@@ -119,6 +127,26 @@ public class FeatherCon {
             return this;
         }
 
+        public Builder withKeyStoreFile(File keyStorePath) {
+            this.keyStoreFile = keyStorePath;
+            return this;
+        }
+
+        public Builder withKeyStorePassword(String keyStorePassword) {
+            this.keyStorePassword = keyStorePassword;
+            return this;
+        }
+
+        public Builder withSslPort(Integer sslPort) {
+            this.sslPort = sslPort;
+            return this;
+        }
+
+        public Builder withSslOnly(Boolean sslOnly) {
+            this.sslOnly = sslOnly;
+            return this;
+        }
+
         public FeatherCon build() {
             if (built) {
                 throw new IllegalStateException("This builder can be used to produce one server instance.  Please create a new builder.");
@@ -151,6 +179,25 @@ public class FeatherCon {
                 for (String pathSpec : filterBuffer.pathSpec) {
                     contextHandler.addFilter(filterBuffer.filterHolder, pathSpec, filterBuffer.dispatches);
                 }
+            }
+
+            if (keyStoreFile != null) {
+                if (keyStorePassword == null) {
+                    throw new IllegalArgumentException("keystore password has not been specified.");
+                }
+                if (sslPort == null) {
+                    throw new IllegalArgumentException("SSL port has not been specified.");
+                }
+                if (sslOnly) {
+                    for (Connector connector : server.getConnectors()) {
+                        server.removeConnector(connector);
+                    }
+                }
+                SslContextFactory sslContextFactory = new SslContextFactory(keyStoreFile.getAbsolutePath());
+                sslContextFactory.setKeyStorePassword(keyStorePassword);
+                SslSelectChannelConnector connector = new SslSelectChannelConnector(sslContextFactory);
+                connector.setPort(sslPort);
+                server.addConnector(connector);
             }
 
             FeatherCon featherCon = new FeatherCon(server, port, contextName, servletContextAttributes);
