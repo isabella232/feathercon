@@ -11,7 +11,6 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.EventListener;
 import java.util.HashMap;
@@ -89,11 +88,7 @@ public class FeatherCon {
         protected List<FilterWrapper> filters = new LinkedList<FilterWrapper>();
         protected List<ServletConfiguration> servletConfigurations = new LinkedList<ServletConfiguration>();
         protected Map<String, String> initParameters = new HashMap<String, String>();
-        protected File keyStoreFile;
-        protected String keyStorePassword;
-        protected Integer sslPort;
         protected SSLConfiguration sslConfiguration;
-        protected Boolean sslOnly;
 
         private Boolean built = false;
 
@@ -154,26 +149,6 @@ public class FeatherCon {
 
         public Builder withContextName(String contextName) {
             this.contextName = contextName;
-            return this;
-        }
-
-        public Builder withKeyStoreFile(File keyStorePath) {
-            this.keyStoreFile = keyStorePath;
-            return this;
-        }
-
-        public Builder withKeyStorePassword(String keyStorePassword) {
-            this.keyStorePassword = keyStorePassword;
-            return this;
-        }
-
-        public Builder withSslPort(Integer sslPort) {
-            this.sslPort = sslPort;
-            return this;
-        }
-
-        public Builder withSslOnly(Boolean sslOnly) {
-            this.sslOnly = sslOnly;
             return this;
         }
 
