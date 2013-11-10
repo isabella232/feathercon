@@ -36,6 +36,18 @@ public class FeatherCon {
         server.start();
     }
 
+    public void stop() throws Exception {
+        server.stop();
+    }
+
+    public boolean isRunning() {
+        return server.isRunning();
+    }
+
+    public void join() throws InterruptedException {
+        server.join();
+    }
+
     /**
      * Return the port of the first connector that does not implement SslConnector.  When using an ephemeral port,
      * this value will be nonzero, unlike the value of this.port.
@@ -64,18 +76,6 @@ public class FeatherCon {
             }
         }
         return null;
-    }
-
-    public void stop() throws Exception {
-        server.stop();
-    }
-
-    public boolean isRunning() {
-        return server.isRunning();
-    }
-
-    public void join() throws InterruptedException {
-        server.join();
     }
 
     public static class Builder {
