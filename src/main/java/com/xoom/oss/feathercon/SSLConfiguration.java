@@ -27,27 +27,27 @@ public class SSLConfiguration {
         protected Boolean sslOnly;
         protected List<String> excludeCipherSuites = new ArrayList<String>();
 
-        Builder withKeyStoreFile(File keyStoreFile) {
+        public Builder withKeyStoreFile(File keyStoreFile) {
             this.keyStoreFile = keyStoreFile;
             return this;
         }
 
-        Builder withKeyStorePassword(String keyStorePassword) {
+        public Builder withKeyStorePassword(String keyStorePassword) {
             this.keyStorePassword = keyStorePassword;
             return this;
         }
 
-        Builder withSslPort(Integer sslPort) {
+        public Builder withSslPort(Integer sslPort) {
             this.sslPort = sslPort;
             return this;
         }
 
-        Builder withSslOnly(Boolean sslOnly) {
+        public Builder withSslOnly(Boolean sslOnly) {
             this.sslOnly = sslOnly;
             return this;
         }
 
-        Builder withExcludedCipherSuite(String cipherSuite) {
+        public Builder withExcludedCipherSuite(String cipherSuite) {
             excludeCipherSuites.add(cipherSuite);
             return this;
         }
