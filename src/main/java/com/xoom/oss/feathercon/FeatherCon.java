@@ -1,5 +1,7 @@
 package com.xoom.oss.feathercon;
 
+import org.eclipse.jetty.server.AbstractConnectionFactory;
+import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -14,6 +16,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -53,36 +56,48 @@ public class FeatherCon {
     }
 
     /**
-     * Return the port of the first connector that does not implement SslConnector.  When using an ephemeral port,
+     * Return the port of the first connector supported by HttpConnectionFactory.  When using an ephemeral port,
      * this value will be nonzero, unlike the value of this.port.
      *
      * @return http port
      */
     public Integer getHttpPort() {
-        for (Connector connector : server.getConnectors()) {
-            System.out.printf("@@@ http connector: %s\n", connector.getClass());
-//            if (!SslConnector.class.isAssignableFrom(connector.getClass())) {
-//                return connector.getLocalPort();
-//            }
-        }
-        if (true) throw new UnsupportedOperationException("need to figure out what is here");
-        return null;
+        return getPort(Scheme.HTTP);
     }
 
     /**
-     * Return the port of the first connector that implements SslConnector.  When using an ephemeral port,
+     * Return the port of the first connector supported by SslConnectionFactory.  When using an ephemeral port,
      * this value will be nonzero, unlike the value of this.port.
      *
      * @return https port
      */
     public Integer getHttpsPort() {
+        return getPort(Scheme.HTTPS);
+    }
+
+    private Integer getPort(Scheme scheme) {
         for (Connector connector : server.getConnectors()) {
-            System.out.printf("http connector: %s\n", connector.getClass());
-//            if (SslConnector.class.isAssignableFrom(connector.getClass())) {
-//                return connector.getLocalPort();
-//            }
+            if (connector instanceof ServerConnector) {
+                ServerConnector serverConnector = (ServerConnector) connector;
+                Collection<ConnectionFactory> connectionFactories = serverConnector.getConnectionFactories();
+                for (ConnectionFactory connectionFactory : connectionFactories) {
+                    Class<? extends AbstractConnectionFactory> connectorClass;
+                    switch (scheme) {
+                        case HTTP:
+                            connectorClass = HttpConnectionFactory.class;
+                            break;
+                        case HTTPS:
+                            connectorClass = SslConnectionFactory.class;
+                            break;
+                        default:
+                            throw new UnsupportedOperationException("No such scheme.");
+                    }
+                    if (connectorClass.isAssignableFrom(connectionFactory.getClass())) {
+                        return serverConnector.getLocalPort();
+                    }
+                }
+            }
         }
-        if (true) throw new UnsupportedOperationException("need to figure out what is here");
         return null;
     }
 

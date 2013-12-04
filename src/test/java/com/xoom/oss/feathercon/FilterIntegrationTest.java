@@ -33,9 +33,6 @@ public class FilterIntegrationTest extends IntegrationBase {
         server = serverBuilder.withPort(serverPort).build();
         server.start();
 
-
-        Integer httpPort = server.getHttpPort();
-
         ClientConfig clientConfig = new DefaultClientConfig();
         Client client = Client.create(clientConfig);
         WebResource resource = client.resource(String.format("http://localhost:%d/hello.html", serverPort));
