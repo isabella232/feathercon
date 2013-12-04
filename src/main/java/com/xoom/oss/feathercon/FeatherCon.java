@@ -23,8 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-// ssl migration: http://goo.gl/26lM7
-
 public class FeatherCon {
     public static final Integer DEFAULT_PORT = 8080;
     public final Integer port;
