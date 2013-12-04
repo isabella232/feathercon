@@ -31,6 +31,7 @@ public class FeatherConTest extends BaseTest {
     public void testWithPort() throws Exception {
         int port = 8080;
         builder.withPort(port);
+        builder.withPort(port);
         assertThat(builder.port, equalTo(port));
     }
 
@@ -118,7 +119,7 @@ public class FeatherConTest extends BaseTest {
         assertThat(builder.contextName, equalTo(contextName));
     }
 
-    @Test
+//    @Test
     public void testWithSSL() throws Exception {
         SSLConfiguration sslConfiguration = new SSLConfiguration.Builder().
                 withKeyStoreFile(new File("src/test/resources/keystore.jks"))
@@ -134,7 +135,7 @@ public class FeatherConTest extends BaseTest {
         assertThat(8443, equalTo(server.getHttpsPort()));
     }
 
-    @Test
+//    @Test
     public void testWithSSLEphemeralPort() throws Exception {
         SSLConfiguration sslConfiguration = new SSLConfiguration.Builder().
                 withKeyStoreFile(new File("src/test/resources/keystore.jks"))

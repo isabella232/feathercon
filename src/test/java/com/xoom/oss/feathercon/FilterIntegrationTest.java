@@ -31,8 +31,10 @@ public class FilterIntegrationTest extends IntegrationBase {
                 .withInitParameter("k1", "v1").build();
         serverBuilder.withServletConfiguration(servletBuilder.build()).withFilter(filterWrapper);
         server = serverBuilder.withPort(serverPort).build();
-
         server.start();
+
+
+        Integer httpPort = server.getHttpPort();
 
         ClientConfig clientConfig = new DefaultClientConfig();
         Client client = Client.create(clientConfig);

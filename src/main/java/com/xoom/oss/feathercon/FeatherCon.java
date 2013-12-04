@@ -60,7 +60,7 @@ public class FeatherCon {
      */
     public Integer getHttpPort() {
         for (Connector connector : server.getConnectors()) {
-            System.out.printf("http connector: %s\n", connector.getClass());
+            System.out.printf("@@@ http connector: %s\n", connector.getClass());
 //            if (!SslConnector.class.isAssignableFrom(connector.getClass())) {
 //                return connector.getLocalPort();
 //            }
@@ -203,6 +203,13 @@ public class FeatherCon {
             HttpConfiguration http_config = new HttpConfiguration();
             http_config.setOutputBufferSize(32768);
 
+            if (sslConfiguration == null || !sslConfiguration.sslOnly) {
+                ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));
+                http.setPort(port);
+                http.setIdleTimeout(30000);
+                server.addConnector(http);
+            }
+
             if (sslConfiguration != null) {
                 http_config.setSecureScheme("https");
 
@@ -219,15 +226,7 @@ public class FeatherCon {
                 ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"));
                 https.setPort(sslConfiguration.sslPort);
                 https.setIdleTimeout(500000);
-
-                // http
-                if (!sslConfiguration.sslOnly) {
-                    ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));
-                    http.setPort(port);
-                    http.setIdleTimeout(30000);
-                    server.setConnectors(new Connector[]{http, https});
-                }
-                server.setConnectors(new Connector[]{https});
+                server.addConnector(https);
             }
 
             FeatherCon featherCon = new FeatherCon(server, port, contextName, servletContextAttributes);
