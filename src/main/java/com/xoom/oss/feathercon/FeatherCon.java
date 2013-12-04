@@ -2,21 +2,25 @@ package com.xoom.oss.feathercon;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.ssl.SslConnector;
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+// ssl migration: http://goo.gl/26lM7
 
 public class FeatherCon {
     public static final Integer DEFAULT_PORT = 8080;
@@ -56,10 +60,12 @@ public class FeatherCon {
      */
     public Integer getHttpPort() {
         for (Connector connector : server.getConnectors()) {
-            if (!SslConnector.class.isAssignableFrom(connector.getClass())) {
-                return connector.getLocalPort();
-            }
+            System.out.printf("http connector: %s\n", connector.getClass());
+//            if (!SslConnector.class.isAssignableFrom(connector.getClass())) {
+//                return connector.getLocalPort();
+//            }
         }
+        if (true) throw new UnsupportedOperationException("need to figure out what is here");
         return null;
     }
 
@@ -71,10 +77,12 @@ public class FeatherCon {
      */
     public Integer getHttpsPort() {
         for (Connector connector : server.getConnectors()) {
-            if (SslConnector.class.isAssignableFrom(connector.getClass())) {
-                return connector.getLocalPort();
-            }
+            System.out.printf("http connector: %s\n", connector.getClass());
+//            if (SslConnector.class.isAssignableFrom(connector.getClass())) {
+//                return connector.getLocalPort();
+//            }
         }
+        if (true) throw new UnsupportedOperationException("need to figure out what is here");
         return null;
     }
 
@@ -161,9 +169,9 @@ public class FeatherCon {
                 throw new IllegalStateException("This builder can be used to produce one server instance.  Please create a new builder.");
             }
 
+            Server server = new Server();
+
             port = port == null ? DEFAULT_PORT : port;
-            Server server = new Server(new InetSocketAddress("0.0.0.0", port));
-            server.setGracefulShutdown(100);
 
             ServletContextHandler contextHandler = new ServletContextHandler(server, contextName);
             for (ServletConfiguration servletConfiguration : servletConfigurations) {
@@ -190,18 +198,36 @@ public class FeatherCon {
                 }
             }
 
+            // Jetty 9 connector config: http://goo.gl/26lM7
+
+            HttpConfiguration http_config = new HttpConfiguration();
+            http_config.setOutputBufferSize(32768);
+
             if (sslConfiguration != null) {
-                if (sslConfiguration.sslOnly) {
-                    for (Connector connector : server.getConnectors()) {
-                        server.removeConnector(connector);
-                    }
-                }
+                http_config.setSecureScheme("https");
+
+                HttpConfiguration https_config = new HttpConfiguration(http_config);
+                SecureRequestCustomizer customizer = new SecureRequestCustomizer();
+                https_config.addCustomizer(customizer);
+
+                // exclude cipher suites: https://jira.atlassian.com/browse/CRUC-6594
+                // http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html
                 SslContextFactory sslContextFactory = new SslContextFactory(sslConfiguration.keyStoreFile.getAbsolutePath());
+                sslContextFactory.setExcludeCipherSuites(sslConfiguration.excludeCipherSuites.toArray(new String[sslConfiguration.excludeCipherSuites.size()]));
                 sslContextFactory.setKeyStorePassword(sslConfiguration.keyStorePassword);
-                SslSelectChannelConnector connector = new SslSelectChannelConnector(sslContextFactory);
-                connector.setPort(sslConfiguration.sslPort);
-                connector.setExcludeCipherSuites(sslConfiguration.excludeCipherSuites.toArray(new String[sslConfiguration.excludeCipherSuites.size()]));
-                server.addConnector(connector);
+
+                ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"));
+                https.setPort(sslConfiguration.sslPort);
+                https.setIdleTimeout(500000);
+
+                // http
+                if (!sslConfiguration.sslOnly) {
+                    ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));
+                    http.setPort(port);
+                    http.setIdleTimeout(30000);
+                    server.setConnectors(new Connector[]{http, https});
+                }
+                server.setConnectors(new Connector[]{https});
             }
 
             FeatherCon featherCon = new FeatherCon(server, port, contextName, servletContextAttributes);
