@@ -32,7 +32,7 @@ public class WebSocketEndpointConfiguration {
 
         public WebSocketEndpointConfiguration build() {
             if (built) {
-                throw new IllegalStateException("Cannot build more than once.  Please create a new builder and begin again.");
+                throw new IllegalStateException("This builder can be used to produce one configuration instance.  Please create a new builder.");
             }
             built = true;
             return new WebSocketEndpointConfiguration(endpointClasses);

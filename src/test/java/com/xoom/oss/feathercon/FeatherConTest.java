@@ -6,6 +6,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.DispatcherType;
+import javax.websocket.CloseReason;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import javax.websocket.server.ServerEndpoint;
 import java.io.File;
 import java.util.EnumSet;
 
@@ -204,5 +211,33 @@ public class FeatherConTest extends BaseTest {
     public void testBuiltTwice() throws Exception {
         builder.build();
         builder.build();
+    }
+
+    @Test
+    public void testWebSocketConfiguration() throws Exception {
+        WebSocketEndpointConfiguration.Builder webSocketBuilder = new WebSocketEndpointConfiguration.Builder();
+        webSocketBuilder.withEndpointClass(MyEndPoint.class);
+        WebSocketEndpointConfiguration webSocketConfig = webSocketBuilder.build();
+        builder.withWebSocketConfiguration(webSocketConfig);
+        builder.build();
+    }
+
+    @ServerEndpoint(value = "/events/")
+    private class MyEndPoint {
+        @OnOpen
+        public void onWebSocketConnect(Session sess) {
+        }
+
+        @OnMessage
+        public void onWebSocketText(String message) {
+        }
+
+        @OnClose
+        public void onWebSocketClose(CloseReason reason) {
+        }
+
+        @OnError
+        public void onWebSocketError(Throwable cause) {
+        }
     }
 }
