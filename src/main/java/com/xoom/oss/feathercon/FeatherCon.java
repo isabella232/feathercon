@@ -13,9 +13,12 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.websocket.DeploymentException;
+import javax.websocket.server.ServerContainer;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashMap;
@@ -109,6 +112,7 @@ public class FeatherCon {
         protected List<ServletConfiguration> servletConfigurations = new LinkedList<ServletConfiguration>();
         protected Map<String, String> initParameters = new HashMap<String, String>();
         protected SSLConfiguration sslConfiguration;
+        protected WebSocketEndpointConfiguration webSocketConfiguration;
 
         private Boolean built = false;
 
@@ -177,6 +181,11 @@ public class FeatherCon {
             return this;
         }
 
+        public Builder withWebSocketConfiguration(WebSocketEndpointConfiguration webSocketConfiguration) {
+            this.webSocketConfiguration = webSocketConfiguration;
+            return this;
+        }
+
         public FeatherCon build() {
             if (built) {
                 throw new IllegalStateException("This builder can be used to produce one server instance.  Please create a new builder.");
@@ -208,6 +217,17 @@ public class FeatherCon {
             for (FilterWrapper filterBuffer : filters) {
                 for (String pathSpec : filterBuffer.pathSpec) {
                     contextHandler.addFilter(filterBuffer.filterHolder, pathSpec, filterBuffer.dispatches);
+                }
+            }
+
+            if (webSocketConfiguration != null) {
+                ServerContainer wscontainer = WebSocketServerContainerInitializer.configureContext(contextHandler);
+                for (Class c : webSocketConfiguration.endpointClasses) {
+                    try {
+                        wscontainer.addEndpoint(c);
+                    } catch (DeploymentException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
 
