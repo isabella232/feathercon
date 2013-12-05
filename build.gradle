@@ -3,6 +3,14 @@ description = "Xoom FeatherCon Servlet Container"
 apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
+apply plugin: 'idea'
+
+idea {
+    module {
+        testSourceDirs += file('src/intTest/java')
+        testSourceDirs += file('src/intTest/resources')
+    }
+}
 
 def btCredentialFile = new File(new File(System.getProperty("user.home"), ".gradle"), "bintray.gradle")
 if (btCredentialFile.exists()) {
