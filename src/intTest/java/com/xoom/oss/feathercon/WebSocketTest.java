@@ -38,7 +38,7 @@ public class WebSocketTest {
         Set<Session> sessions = new HashSet<Session>();
 
         @OnOpen
-        public void onWebSocketConnect(Session session) {
+        public void onWebSocketConnect(Session session) throws IOException, EncodeException {
             sessions.add(session);
         }
 
