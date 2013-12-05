@@ -1,11 +1,14 @@
-FeatherCon lightweight servlet container
+FeatherCon lightweight servlet and WebSockets container
 ----------------------------------------
 
 ### Usage
 
-FeatherCon(tainer) is a lightweight servlet container built around embedded Jetty.  The first use case for which FeatherCon
-was designed was to host small production or tool servers for JAX-RS Jersey-based REST services.  Here's how to set
-up a JAX-RS server, which is taken from one of the unit tests:
+FeatherCon(tainer) is a lightweight servlet container built around embedded Jetty.  FeatherCon v2 depends on Jetty 9,
+which in turn requires Java7.  If you need to run under Java6, check out the latest 1.x git tags.  FeatherCon v2 supports
+WebSockets.  See com.xoom.oss.feathercon.WebSocketTest for an example.
+
+The first use case for which FeatherCon was designed was to host small production or tool servers for JAX-RS
+Jersey-based REST services.  Here's how to set up a JAX-RS server, which is taken from one of the unit tests:
 
     String scanPackages = "com.xoom.oss.feathercon";
     FeatherCon server = new JerseyServerBuilder(scanPackages).build();
@@ -79,7 +82,7 @@ with this dependency
             <dependency>
                 <groupId>com.xoom.oss</groupId>
                 <artifactId>feathercon</artifactId>
-                <version>1.3.2</version>  <!-- or latest in the repository above -->
+                <version>2.0</version>  <!-- or latest in the repository above -->
             </dependency>
         </dependencies>
 

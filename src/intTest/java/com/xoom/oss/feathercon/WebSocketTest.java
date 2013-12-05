@@ -29,6 +29,9 @@ public class WebSocketTest {
 
         FeatherCon server = serverBuilder.withWebSocketConfiguration(wsconfig).withServletConfiguration(servlet).build();
 
+        // Start the server, open your browser's Javascript debug console, point your browser to http://localhost:8080/index.html,
+        // and look for console messages reported by the WebSocket client.
+
         server.start();
         server.join();
     }
