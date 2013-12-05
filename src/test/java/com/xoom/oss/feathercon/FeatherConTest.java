@@ -219,7 +219,7 @@ public class FeatherConTest extends BaseTest {
         webSocketBuilder.withEndpointClass(MyEndPoint.class);
         WebSocketEndpointConfiguration webSocketConfig = webSocketBuilder.build();
         builder.withWebSocketConfiguration(webSocketConfig);
-        builder.build();
+        FeatherCon server = builder.build();
     }
 
     @ServerEndpoint(value = "/events/")
