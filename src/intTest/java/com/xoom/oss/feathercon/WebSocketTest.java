@@ -21,7 +21,7 @@ public class WebSocketTest {
         FeatherCon.Builder serverBuilder = new FeatherCon.Builder();
 
         ServletConfiguration.Builder servletConfig = new ServletConfiguration.Builder();
-        servletConfig.withServletClass(DefaultServlet.class).withPathSpec("/*").withInitParameter("resourceBase", "/tmp/html");
+        servletConfig.withServletClass(DefaultServlet.class).withPathSpec("/*").withInitParameter("resourceBase", "src/intTest/html");
         ServletConfiguration servlet = servletConfig.build();
 
         WebSocketEndpointConfiguration.Builder wsb = new WebSocketEndpointConfiguration.Builder();
@@ -38,16 +38,14 @@ public class WebSocketTest {
         Set<Session> sessions = new HashSet<Session>();
 
         @OnOpen
-        public void onWebSocketConnect(Session sess) {
-            sessions.add(sess);
-            System.out.println("@@@ A");
+        public void onWebSocketConnect(Session session) {
+            sessions.add(session);
         }
 
         @OnMessage
         public void onWebSocketText(String message) throws IOException, EncodeException {
-            System.out.println("@@@ B");
             for (final Session session : sessions) {
-                session.getBasicRemote().sendObject(message);
+                session.getBasicRemote().sendObject(String.format("echo: %s", message));
             }
         }
 
