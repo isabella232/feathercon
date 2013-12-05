@@ -1,5 +1,6 @@
 package com.xoom.oss.feathercon;
 
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.junit.Test;
 
 import javax.websocket.CloseReason;
@@ -18,9 +19,16 @@ public class WebSocketTest {
     @Test
     public void testWebSocketSetup() throws Exception {
         FeatherCon.Builder serverBuilder = new FeatherCon.Builder();
+
+        ServletConfiguration.Builder servletConfig = new ServletConfiguration.Builder();
+        servletConfig.withServletClass(DefaultServlet.class).withPathSpec("/*").withInitParameter("resourceBase", "/tmp/html");
+        ServletConfiguration servlet = servletConfig.build();
+
         WebSocketEndpointConfiguration.Builder wsb = new WebSocketEndpointConfiguration.Builder();
         WebSocketEndpointConfiguration wsconfig = wsb.withEndpointClass(MyEndpoint.class).build();
-        FeatherCon server = serverBuilder.withWebSocketConfiguration(wsconfig).build();
+
+        FeatherCon server = serverBuilder.withWebSocketConfiguration(wsconfig).withServletConfiguration(servlet).build();
+
         server.start();
         server.join();
     }
