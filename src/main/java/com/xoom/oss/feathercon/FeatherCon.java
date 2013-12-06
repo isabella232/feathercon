@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.websocket.DeploymentException;
 import javax.websocket.server.ServerContainer;
+import javax.websocket.server.ServerEndpointConfig;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashMap;
@@ -225,6 +226,13 @@ public class FeatherCon {
                 for (Class c : webSocketConfiguration.endpointClasses) {
                     try {
                         wscontainer.addEndpoint(c);
+                    } catch (DeploymentException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                for (ServerEndpointConfig serverEndpointConfig : webSocketConfiguration.serverEndpointConfigs) {
+                    try {
+                        wscontainer.addEndpoint(serverEndpointConfig);
                     } catch (DeploymentException e) {
                         throw new RuntimeException(e);
                     }

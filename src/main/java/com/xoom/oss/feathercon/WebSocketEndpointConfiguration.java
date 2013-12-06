@@ -5,6 +5,7 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.server.ServerEndpoint;
+import javax.websocket.server.ServerEndpointConfig;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,14 +15,17 @@ import java.util.Collections;
 public class WebSocketEndpointConfiguration {
 
     public final Collection<Class> endpointClasses;
+    public final Collection<ServerEndpointConfig> serverEndpointConfigs;
 
-    private WebSocketEndpointConfiguration(Collection<Class> endpointClasses) {
+    private WebSocketEndpointConfiguration(Collection<Class> endpointClasses, Collection<ServerEndpointConfig> serverEndpointConfigs) {
         this.endpointClasses = Collections.unmodifiableCollection(endpointClasses);
+        this.serverEndpointConfigs = Collections.unmodifiableCollection(serverEndpointConfigs);
     }
 
     public static class Builder {
         private boolean built;
         Collection<Class> endpointClasses = new ArrayList<Class>();
+        Collection<ServerEndpointConfig> serverEndpointConfigs = new ArrayList<ServerEndpointConfig>();
 
         public Builder withEndpointClass(Class endpointClass) {
             requireServerEndPointAnnotation(endpointClass);
@@ -30,12 +34,17 @@ public class WebSocketEndpointConfiguration {
             return this;
         }
 
+        public Builder withServerEndpointConfig(ServerEndpointConfig serverEndpointConfig) {
+            serverEndpointConfigs.add(serverEndpointConfig);
+            return this;
+        }
+
         public WebSocketEndpointConfiguration build() {
             if (built) {
                 throw new IllegalStateException("This builder can be used to produce one configuration instance.  Please create a new builder.");
             }
             built = true;
-            return new WebSocketEndpointConfiguration(endpointClasses);
+            return new WebSocketEndpointConfiguration(endpointClasses, serverEndpointConfigs);
         }
 
         // file bug:  Option-return at EOL should offer to Iterate, like it does for Colelctions
