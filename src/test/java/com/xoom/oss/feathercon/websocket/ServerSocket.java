@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-@ServerEndpoint(value = "/events/")
+@ServerEndpoint(value = "/events")
 public class ServerSocket {
     Set<Session> sessions = new HashSet<Session>();
 

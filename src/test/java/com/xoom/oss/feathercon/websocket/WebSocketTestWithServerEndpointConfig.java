@@ -26,7 +26,7 @@ public class WebSocketTestWithServerEndpointConfig {
 
         WebSocketEndpointConfiguration.Builder wsb = new WebSocketEndpointConfiguration.Builder();
         WebSocketEndpointConfiguration wsconfig = wsb.withServerEndpointConfig(config).build();
-        FeatherCon.Builder serverBuilder = new FeatherCon.Builder();
+        FeatherCon.Builder serverBuilder = new FeatherCon.Builder().withPort(0);
         server = serverBuilder.withWebSocketConfiguration(wsconfig).build();
         server.start();
     }
@@ -41,7 +41,7 @@ public class WebSocketTestWithServerEndpointConfig {
         ClientSocket clientSocket = new ClientSocket();
         String message = "Hello";
 
-        URI uri = URI.create("ws://localhost:8080/events");
+        URI uri = URI.create(String.format("ws://localhost:%d/events", server.getHttpPort()));
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             try {
