@@ -18,7 +18,7 @@ public class WebSocketTestWithServerEndpointConfig {
     @Before
     public void setup() throws Exception {
         ServerEndpointConfig config = ServerEndpointConfig.Builder
-                .create(ServerSocket.class, "/events/")
+                .create(ServerSocket.class, "/events")
                 .configurator(new Curator())
                 .build();
 
@@ -39,7 +39,7 @@ public class WebSocketTestWithServerEndpointConfig {
         ClientSocket clientSocket = new ClientSocket();
         String message = "Hello";
 
-        URI uri = URI.create("ws://localhost:8080/events/");
+        URI uri = URI.create("ws://localhost:8080/events");
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             try {
