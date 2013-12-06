@@ -1,6 +1,5 @@
 package com.xoom.oss.feathercon;
 
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.junit.After;
 import org.junit.Assert;
@@ -18,20 +17,10 @@ public class WebSocketTest {
 
     @Before
     public void setup() throws Exception {
-
-        ServletConfiguration.Builder servletConfig = new ServletConfiguration.Builder();
-        servletConfig.withServletClass(DefaultServlet.class).withPathSpec("/*").withInitParameter("resourceBase", "src/intTest/html");
-        ServletConfiguration servlet = servletConfig.build();
-
         WebSocketEndpointConfiguration.Builder wsb = new WebSocketEndpointConfiguration.Builder();
         WebSocketEndpointConfiguration wsconfig = wsb.withEndpointClass(ServerSocket.class).build();
-
         FeatherCon.Builder serverBuilder = new FeatherCon.Builder();
-        server = serverBuilder.withWebSocketConfiguration(wsconfig).withServletConfiguration(servlet).build();
-
-        // Start the server, open your browser's Javascript debug console, point your browser to http://localhost:8080/index.html,
-        // and look for console messages reported by the WebSocket client.
-
+        server = serverBuilder.withWebSocketConfiguration(wsconfig).build();
         server.start();
     }
 
