@@ -11,7 +11,7 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
 
-public class WebSocketTest {
+public class WebSocketTestWithStaticEndpointClass {
 
     private FeatherCon server;
 
