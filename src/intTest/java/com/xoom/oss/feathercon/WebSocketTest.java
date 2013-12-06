@@ -1,65 +1,75 @@
 package com.xoom.oss.feathercon;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.util.component.LifeCycle;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import javax.websocket.CloseReason;
-import javax.websocket.EncodeException;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
+import javax.websocket.ContainerProvider;
 import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import javax.websocket.WebSocketContainer;
+import java.net.URI;
 
 public class WebSocketTest {
-    @Test
-    public void testWebSocketSetup() throws Exception {
-        FeatherCon.Builder serverBuilder = new FeatherCon.Builder();
+
+    private FeatherCon server;
+
+    @Before
+    public void setup() throws Exception {
 
         ServletConfiguration.Builder servletConfig = new ServletConfiguration.Builder();
         servletConfig.withServletClass(DefaultServlet.class).withPathSpec("/*").withInitParameter("resourceBase", "src/intTest/html");
         ServletConfiguration servlet = servletConfig.build();
 
         WebSocketEndpointConfiguration.Builder wsb = new WebSocketEndpointConfiguration.Builder();
-        WebSocketEndpointConfiguration wsconfig = wsb.withEndpointClass(MyEndpoint.class).build();
+        WebSocketEndpointConfiguration wsconfig = wsb.withEndpointClass(ServerSocket.class).build();
 
-        FeatherCon server = serverBuilder.withWebSocketConfiguration(wsconfig).withServletConfiguration(servlet).build();
+        FeatherCon.Builder serverBuilder = new FeatherCon.Builder();
+        server = serverBuilder.withWebSocketConfiguration(wsconfig).withServletConfiguration(servlet).build();
 
         // Start the server, open your browser's Javascript debug console, point your browser to http://localhost:8080/index.html,
         // and look for console messages reported by the WebSocket client.
 
         server.start();
-        server.join();
+        Thread.sleep(2000);
     }
 
-    @ServerEndpoint(value = "/events/")
-    public static class MyEndpoint {
-        Set<Session> sessions = new HashSet<Session>();
+    @After
+    public void shutdown() throws Exception {
+        server.stop();
+    }
 
-        @OnOpen
-        public void onWebSocketConnect(Session session) throws IOException, EncodeException {
-            sessions.add(session);
-        }
+    @Test
+    public void testSocket() throws Exception {
+        ClientSocket clientSocket = new ClientSocket();
+        String message = "Hello";
 
-        @OnMessage
-        public void onWebSocketText(String message) throws IOException, EncodeException {
-            for (final Session session : sessions) {
-                session.getBasicRemote().sendObject(String.format("echo: %s", message));
+        URI uri = URI.create("ws://localhost:8080/events/");
+        try {
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            try {
+                // Attempt Connect
+                Session session = container.connectToServer(clientSocket, uri);
+                // Send a message
+                session.getBasicRemote().sendText(message);
+                // Close session
+                Thread.sleep(2000);
+                session.close();
+            } finally {
+                // Force lifecycle stop when done with container.
+                // This is to free up threads and resources that the
+                // JSR-356 container allocates. But unfortunately
+                // the JSR-356 spec does not handle lifecycles (yet)
+                if (container instanceof LifeCycle) {
+                    ((LifeCycle) container).stop();
+                }
             }
+        } catch (Throwable t) {
+            t.printStackTrace(System.err);
         }
 
-        @OnClose
-        public void onWebSocketClose(CloseReason reason) {
-            System.out.println("@@@ C");
-        }
-
-        @OnError
-        public void onWebSocketError(Throwable cause) {
-            System.out.println("@@@ D");
-        }
+        Assert.assertEquals(clientSocket.messageEchoed, "echo:" + message);
     }
 }
