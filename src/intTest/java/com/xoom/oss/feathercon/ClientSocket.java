@@ -9,18 +9,14 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 @ClientEndpoint
 public class ClientSocket {
-    Set<Session> sessions = new HashSet<Session>();
     public String messageEchoed;
     public volatile boolean spin = true;
 
     @OnOpen
     public void onWebSocketConnect(Session session) throws IOException, EncodeException {
-        sessions.add(session);
     }
 
     @OnMessage
@@ -31,11 +27,9 @@ public class ClientSocket {
 
     @OnClose
     public void onWebSocketClose(CloseReason reason) {
-//        System.out.println("@@@ OnClose");
     }
 
     @OnError
     public void onWebSocketError(Throwable cause) {
-//        System.out.println("@@@ OnError");
     }
 }

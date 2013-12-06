@@ -30,11 +30,9 @@ public class ServerSocket {
 
     @OnClose
     public void onWebSocketClose(CloseReason reason) {
-//        System.out.println("@@@ OnClose");
     }
 
     @OnError
     public void onWebSocketError(Throwable cause) {
-//        System.out.println("@@@ OnError");
     }
 }
