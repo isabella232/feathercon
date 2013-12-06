@@ -16,6 +16,7 @@ import java.util.Set;
 public class ClientSocket {
     Set<Session> sessions = new HashSet<Session>();
     public String messageEchoed;
+    public volatile boolean spin = true;
 
     @OnOpen
     public void onWebSocketConnect(Session session) throws IOException, EncodeException {
@@ -24,8 +25,8 @@ public class ClientSocket {
 
     @OnMessage
     public void onWebSocketText(String message) throws IOException, EncodeException {
-        System.out.printf("Client received message %s\n", message);
         messageEchoed = message;
+        spin = false;
     }
 
     @OnClose

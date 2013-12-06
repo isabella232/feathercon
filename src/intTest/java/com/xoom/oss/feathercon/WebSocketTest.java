@@ -33,7 +33,6 @@ public class WebSocketTest {
         // and look for console messages reported by the WebSocket client.
 
         server.start();
-        Thread.sleep(2000);
     }
 
     @After
@@ -50,12 +49,9 @@ public class WebSocketTest {
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             try {
-                // Attempt Connect
                 Session session = container.connectToServer(clientSocket, uri);
-                // Send a message
                 session.getBasicRemote().sendText(message);
-                // Close session
-                Thread.sleep(2000);
+                while (clientSocket.spin) ;
                 session.close();
             } finally {
                 // Force lifecycle stop when done with container.

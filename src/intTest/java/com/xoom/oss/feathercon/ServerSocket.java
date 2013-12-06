@@ -23,7 +23,6 @@ public class ServerSocket {
 
     @OnMessage
     public void onWebSocketText(String message) throws IOException, EncodeException {
-        System.out.printf("Server received message %s\n", message);
         for (final Session session : sessions) {
             session.getBasicRemote().sendObject(String.format("echo:%s", message));
         }
