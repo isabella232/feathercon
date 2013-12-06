@@ -1,5 +1,6 @@
-package com.xoom.oss.feathercon;
+package com.xoom.oss.feathercon.websocket;
 
+import com.xoom.oss.feathercon.WebSocketEndpointConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 

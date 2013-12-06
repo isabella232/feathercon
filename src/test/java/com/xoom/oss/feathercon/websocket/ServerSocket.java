@@ -1,4 +1,4 @@
-package com.xoom.oss.feathercon;
+package com.xoom.oss.feathercon.websocket;
 
 import javax.websocket.CloseReason;
 import javax.websocket.EncodeException;

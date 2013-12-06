@@ -1,5 +1,7 @@
-package com.xoom.oss.feathercon;
+package com.xoom.oss.feathercon.websocket;
 
+import com.xoom.oss.feathercon.FeatherCon;
+import com.xoom.oss.feathercon.WebSocketEndpointConfiguration;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.junit.After;
 import org.junit.Assert;
@@ -9,21 +11,16 @@ import org.junit.Test;
 import javax.websocket.ContainerProvider;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
-import javax.websocket.server.ServerEndpointConfig;
 import java.net.URI;
 
-public class WebSocketTestWithServerEndpointConfig {
+public class WebSocketTestWithStaticEndpointClass {
+
     private FeatherCon server;
 
     @Before
     public void setup() throws Exception {
-        ServerEndpointConfig config = ServerEndpointConfig.Builder
-                .create(ServerSocket.class, "/events")
-                .configurator(new Curator())
-                .build();
-
         WebSocketEndpointConfiguration.Builder wsb = new WebSocketEndpointConfiguration.Builder();
-        WebSocketEndpointConfiguration wsconfig = wsb.withServerEndpointConfig(config).build();
+        WebSocketEndpointConfiguration wsconfig = wsb.withEndpointClass(ServerSocket.class).build();
         FeatherCon.Builder serverBuilder = new FeatherCon.Builder();
         server = serverBuilder.withWebSocketConfiguration(wsconfig).build();
         server.start();
@@ -39,7 +36,7 @@ public class WebSocketTestWithServerEndpointConfig {
         ClientSocket clientSocket = new ClientSocket();
         String message = "Hello";
 
-        URI uri = URI.create("ws://localhost:8080/events");
+        URI uri = URI.create("ws://localhost:8080/events/");
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             try {
@@ -61,13 +58,5 @@ public class WebSocketTestWithServerEndpointConfig {
         }
 
         Assert.assertEquals(clientSocket.messageEchoed, "echo:" + message);
-    }
-
-    public static class Curator extends ServerEndpointConfig.Configurator {
-        @Override
-        public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
-            System.out.println("DI here!");
-            return super.getEndpointInstance(endpointClass);
-        }
     }
 }
