@@ -4,6 +4,7 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -166,6 +167,7 @@ public class FeatherCon {
             server.setGracefulShutdown(100);
 
             ServletContextHandler contextHandler = new ServletContextHandler(server, contextName);
+            contextHandler.setSessionHandler(new SessionHandler());
             for (ServletConfiguration servletConfiguration : servletConfigurations) {
                 for (String pathSpec : servletConfiguration.pathSpecs) {
                     contextHandler.addServlet(servletConfiguration.servletHolder, pathSpec);
