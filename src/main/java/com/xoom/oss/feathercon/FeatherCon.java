@@ -166,7 +166,9 @@ public class FeatherCon {
             Server server = new Server(new InetSocketAddress("0.0.0.0", port));
             server.setGracefulShutdown(100);
 
-            ServletContextHandler contextHandler = new ServletContextHandler(server, contextName);
+            ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            contextHandler.setServer(server);
+            contextHandler.setContextPath(contextName);
             contextHandler.setSessionHandler(new SessionHandler());
             for (ServletConfiguration servletConfiguration : servletConfigurations) {
                 for (String pathSpec : servletConfiguration.pathSpecs) {
