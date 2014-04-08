@@ -4,6 +4,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.io.IOException;
 import java.util.EnumSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,6 +51,52 @@ public class FilterWrapperTest extends BaseTest {
         assertThat(builder.initParams.containsKey("k2"), equalTo(true));
         assertThat(builder.initParams.get("k1"), equalTo("v1"));
         assertThat(builder.initParams.get("k2"), equalTo("v2"));
+    }
+
+    @Test
+    public void testWithFilterInstance() throws Exception {
+        Filter filter = new Filter() {
+
+            @Override
+            public void init(FilterConfig filterConfig) throws ServletException {
+
+            }
+
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+            }
+
+            @Override
+            public void destroy() {
+
+            }
+        };
+        builder.withFilter(filter);
+        assertThat(builder.filter.equals(filter), equalTo(true));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testWithFilterInstanceAndFilterClass() throws Exception {
+        Filter filter = new Filter() {
+
+            @Override
+            public void init(FilterConfig filterConfig) throws ServletException {
+
+            }
+
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+            }
+
+            @Override
+            public void destroy() {
+
+            }
+        };
+        builder.withFilter(filter).withFilterClass(FilterA.class);
+        builder.build();
     }
 
     @Test

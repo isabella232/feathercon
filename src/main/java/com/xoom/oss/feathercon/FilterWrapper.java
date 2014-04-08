@@ -27,11 +27,17 @@ public class FilterWrapper {
     public static class Builder {
         private final Logger logger = LoggerFactory.getLogger(Builder.class);
         Class<? extends Filter> filterClass;
+        Filter filter;
         Map<String, String> initParams = new HashMap<String, String>();
         List<String> pathSpecs = new ArrayList<String>();
         EnumSet<DispatcherType> dispatcherTypeSet = EnumSet.of(DispatcherType.REQUEST);
 
         private boolean built;
+
+        public Builder withFilter(Filter filter) {
+            this.filter = filter;
+            return this;
+        }
 
         public Builder withFilterClass(Class<? extends Filter> filterClass) {
             this.filterClass = filterClass;
@@ -57,13 +63,22 @@ public class FilterWrapper {
             if (built) {
                 throw new IllegalStateException("This builder can be used to produce one filter wrapper instance.  Please create a new builder.");
             }
-            if (filterClass == null) {
-                throw new IllegalStateException("Cannot build filter wrapper without a filter class");
+            if (filterClass == null && filter == null) {
+                throw new IllegalStateException("Cannot build filter wrapper without a filter class or filter instance");
+            }
+            if (filterClass != null && filter != null) {
+                throw new IllegalStateException("Only one of filter-class and filter-instance may be specified.");
             }
             if (pathSpecs.isEmpty()) {
-                logger.warn("Filter {} has no pathSpecs, therefore this filter will not handle any requests.", filterClass);
+                logger.warn("Filter {} has no pathSpecs, therefore this filter will not handle any requests.", filterClass == null ? filter : filterClass);
             }
-            FilterHolder filterHolder = new FilterHolder(filterClass);
+
+            FilterHolder filterHolder;
+            if (filter == null) {
+                filterHolder = new FilterHolder(filterClass);
+            } else {
+                filterHolder = new FilterHolder(filter);
+            }
             for (String key : initParams.keySet()) {
                 filterHolder.setInitParameter(key, initParams.get(key));
             }

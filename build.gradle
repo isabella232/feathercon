@@ -13,7 +13,7 @@ if (!hasProperty("bintray")) {
 }
 
 group = "com.xoom.oss"
-version = "1.4.4"
+version = "1.4.5"
 
 repositories {
     mavenCentral()
@@ -55,13 +55,13 @@ tasks.withType(Test) {
     }
 }
 
-tasks.withType(Compile) {
+tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     sourceCompatibility = targetCompatibility = 1.6
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.10'
 }
 
 task sourceJar(type: Jar) {
